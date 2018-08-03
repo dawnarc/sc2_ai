@@ -6,6 +6,9 @@
 #include "GameFramework/PlayerController.h"
 #include "SC2AIPlayerController.generated.h"
 
+class UDebugWidget;
+class ASC2AICharacter;
+
 UCLASS()
 class ASC2AIPlayerController : public APlayerController
 {
@@ -36,6 +39,29 @@ protected:
 	/** Input handlers for SetDestination action. */
 	void OnSetDestinationPressed();
 	void OnSetDestinationReleased();
+
+	void OnMouseClick();
+
+protected:
+
+	UPROPERTY(EditDefaultsOnly)
+		TSubclassOf<UDebugWidget> DebugWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly)
+		UMaterialInterface* DebugHighlightMaterial;
+
+	UPROPERTY(EditDefaultsOnly)
+		UMaterialInterface* DefaultMaterial;
+
+	UDebugWidget* DebugWidget;
+
+private:
+
+	void ShowDebugMessage();
+
+private:
+
+	ASC2AICharacter* SelectedCharacter;
 };
 
 

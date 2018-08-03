@@ -1,19 +1,26 @@
 // Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
 
 #include "SC2AIPlayerController.h"
-#include "AI/Navigation/NavigationSystem.h"
+#include "NavigationSystem.h"
 #include "Runtime/Engine/Classes/Components/DecalComponent.h"
 #include "SC2AICharacter.h"
 #include "Engine/World.h"
 #include "Classes/GameFramework/SpectatorPawn.h"
+#include "Blueprint/AIBlueprintHelperLibrary.h"
+#include "Components/TextBlock.h"
 
 #include "SC2AIGameMode.h"
+#include "DebugWidget.h"
+#include "SC2AICharacter.h"
 
 
 ASC2AIPlayerController::ASC2AIPlayerController()
 {
 	bShowMouseCursor = true;
 	DefaultMouseCursor = EMouseCursor::Crosshairs;
+
+	SelectedCharacter = nullptr;
+	DebugWidget = nullptr;
 }
 
 void ASC2AIPlayerController::PlayerTick(float DeltaTime)
@@ -25,6 +32,30 @@ void ASC2AIPlayerController::PlayerTick(float DeltaTime)
 	{
 		MoveToMouseCursor();
 	}
+
+	if (SelectedCharacter && DebugWidget)
+	{
+		if (DebugWidget->TxtDebug)
+		{
+			int FwdCount = -1;
+			int LeftCount = -1;
+			int RightCount = -1;
+			int FwdLeftCount = -1;
+			int FwdRightCount = -1;
+
+			SelectedCharacter->GetOverlapCount(FwdCount, LeftCount, RightCount, FwdLeftCount, FwdRightCount);
+			FString Text = FString::Printf(TEXT("F:%d\t\tL:%d\t\tR:%d\t\tFL:%d\t\tFR:%d"), FwdCount, LeftCount, RightCount, FwdLeftCount, FwdRightCount);
+			DebugWidget->TxtDebug->SetText(FText::FromString(Text));
+
+			if (USkeletalMeshComponent* MeshComp = SelectedCharacter->GetMesh())
+			{
+				if (DebugHighlightMaterial)
+				{
+					MeshComp->SetMaterial(0, DebugHighlightMaterial);
+				}
+			}
+		}
+	}
 }
 
 void ASC2AIPlayerController::SetupInputComponent()
@@ -32,12 +63,15 @@ void ASC2AIPlayerController::SetupInputComponent()
 	// set up gameplay key bindings
 	Super::SetupInputComponent();
 
-	InputComponent->BindAction("SetDestination", IE_Pressed, this, &ASC2AIPlayerController::OnSetDestinationPressed);
-	InputComponent->BindAction("SetDestination", IE_Released, this, &ASC2AIPlayerController::OnSetDestinationReleased);
+	/*InputComponent->BindAction("SetDestination", IE_Pressed, this, &ASC2AIPlayerController::OnSetDestinationPressed);
+	InputComponent->BindAction("SetDestination", IE_Released, this, &ASC2AIPlayerController::OnSetDestinationReleased);*/
 
 	// support touch devices 
 	InputComponent->BindTouch(EInputEvent::IE_Pressed, this, &ASC2AIPlayerController::MoveToTouchLocation);
 	InputComponent->BindTouch(EInputEvent::IE_Repeat, this, &ASC2AIPlayerController::MoveToTouchLocation);
+
+	//Êó±êµã»÷
+	InputComponent->BindAction("MouseClick", IE_Pressed, this, &ASC2AIPlayerController::OnMouseClick);
 }
 
 void ASC2AIPlayerController::BeginPlay()
@@ -50,6 +84,20 @@ void ASC2AIPlayerController::BeginPlay()
 	//	SetSpectatorPawn(SpectatorPawn);
 	//	//SpectatorPawn->SetActorRotation(FRotator(0.f, 0.f, 90.f));
 	//}
+
+	if (GetPawn())
+	{
+		GetPawn()->SetActorRotation(FRotator(-90.f, 0.f, 0.f));
+	}
+
+	if (DebugWidgetClass)
+	{
+		DebugWidget = CreateWidget<UDebugWidget>(this, DebugWidgetClass);
+		if (DebugWidget)
+		{
+			DebugWidget->AddToViewport();
+		}
+	}
 }
 
 void ASC2AIPlayerController::MoveToMouseCursor()
@@ -88,13 +136,12 @@ void ASC2AIPlayerController::SetNewMoveDestination(const FVector DestLocation)
 	APawn* const MyPawn = GetPawn();
 	if (MyPawn)
 	{
-		UNavigationSystem* const NavSys = GetWorld()->GetNavigationSystem();
 		float const Distance = FVector::Dist(DestLocation, MyPawn->GetActorLocation());
 
 		// We need to issue move command only if far enough in order for walk animation to play correctly
-		if (NavSys && (Distance > 120.0f))
+		if (Distance > 120.0f)
 		{
-			NavSys->SimpleMoveToLocation(this, DestLocation);
+			UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, DestLocation);
 		}
 	}
 }
@@ -109,4 +156,42 @@ void ASC2AIPlayerController::OnSetDestinationReleased()
 {
 	// clear flag to indicate we should stop updating the destination
 	bMoveToMouseCursor = false;
+}
+
+void ASC2AIPlayerController::OnMouseClick()
+{
+	FHitResult HitResult;
+	GetHitResultUnderCursor(ECollisionChannel::ECC_Pawn, false, HitResult);
+
+	if (HitResult.GetActor())
+	{
+		/*AActor* Actor = HitResult.GetActor();
+		FString Name = Actor->GetName();*/
+		if (ASC2AICharacter* NewSelected = Cast<ASC2AICharacter>(HitResult.GetActor()))
+		{
+			if (SelectedCharacter)
+			{
+				if (USkeletalMeshComponent* MeshComp = SelectedCharacter->GetMesh())
+				{
+					if (DefaultMaterial)
+					{
+						MeshComp->SetMaterial(0, DefaultMaterial);
+					}
+				}
+
+				SelectedCharacter->SetCollisionVisible(false);
+			}
+
+			NewSelected->SetCollisionVisible(true);
+
+			SelectedCharacter = NewSelected;
+		}
+		
+
+	}
+}
+
+void ASC2AIPlayerController::ShowDebugMessage()
+{
+
 }

@@ -5,7 +5,7 @@
 #include "SC2AICharacter.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Classes/GameFramework/SpectatorPawn.h"
-#include "AI/Navigation/NavigationSystem.h"
+#include "NavigationSystem.h"
 
 #include "SC2AICharacter.h"
 #include "MyAIController.h"
@@ -25,8 +25,13 @@ ASC2AIGameMode::ASC2AIGameMode()
 		CharClass = PlayerPawnBPClass.Class;
 	}
 
-	//DefaultPawnClass = ASpectatorPawn::StaticClass();
-	SpectatorClass = ASpectatorPawn::StaticClass();
+	static ConstructorHelpers::FClassFinder<APawn> CameraPawnBPClass(TEXT("/Game/TopDownCPP/Blueprints/CameraPawnBP"));
+	if (PlayerPawnBPClass.Class != NULL)
+	{
+		DefaultPawnClass = CameraPawnBPClass.Class;
+	}
+	
+	//SpectatorClass = ASpectatorPawn::StaticClass();
 
 	SpawnRotOffset = FRotator(0.f, 90.f, 0.f);
 	SpawnLocOffset = FVector(50.f, 0.f, 0.f);
@@ -85,11 +90,14 @@ void ASC2AIGameMode::AllMove(const FVector& Location)
 	int Count = 0;
 	for (ASC2AICharacter* Char : CharList)
 	{
-		if (AMyAIController* Controller = Cast<AMyAIController>(Char->GetController()))
+		if (Char->IsValidLowLevelFast())
 		{
-			EPathFollowingRequestResult::Type Ret = Controller->MoveToLocation(Location);
-			//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::FromInt((int)Ret));
-			Count++;
+			if (AMyAIController* Controller = Cast<AMyAIController>(Char->GetController()))
+			{
+				EPathFollowingRequestResult::Type Ret = Controller->MoveToLocation(Location);
+				//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::FromInt((int)Ret));
+				Count++;
+			}
 		}
 	}
 }

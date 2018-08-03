@@ -31,6 +31,12 @@ public:
 
 	void SetGroup(EGroup GroupType);
 
+	UFUNCTION(BlueprintImplementableEvent, meta = (AllowPrivateAccess = "true"))
+		void GetOverlapCount(int& FwdCount, int& LeftCount, int& RightCount, int& FwdLeftCount, int& FwdRightCount);
+
+	UFUNCTION(BlueprintImplementableEvent, meta = (AllowPrivateAccess = "true"))
+		void SetCollisionVisible(bool IsVisible);
+
 protected:
 
 	UFUNCTION(BlueprintImplementableEvent, meta = (AllowPrivateAccess = "true"))
@@ -38,6 +44,12 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent, meta = (AllowPrivateAccess = "true"))
 		void LerpRotate(float DeltaSeconds);
+
+	UFUNCTION(BlueprintImplementableEvent, meta = (AllowPrivateAccess = "true"))
+	void RotateCollisionForward(float DeltaSeconds);
+
+	UFUNCTION(BlueprintCallable, meta = (AllowPrivateAccess = "true"))
+		FVector CalcLessestDirection(TMap<int32, FVector>& DirectionMap);
 
 private:
 	/** Top down camera */
@@ -50,5 +62,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	EGroup Group;
+
+	//Key: overlap count in box; Value:current box direction
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
+		TMap<int32, FVector> DirectionMap;
 };
 

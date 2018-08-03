@@ -59,9 +59,30 @@ void ASC2AICharacter::Tick(float DeltaSeconds)
 	CalcMovement(DeltaSeconds);
 
 	LerpRotate(DeltaSeconds);
+
+	RotateCollisionForward(DeltaSeconds);
 }
 
 void ASC2AICharacter::SetGroup(EGroup GroupType)
 {
 	Group = GroupType;
+}
+
+FVector ASC2AICharacter::CalcLessestDirection(TMap<int32, FVector>& DirectionMap)
+{
+	int Lessest = 999999;
+
+	FVector Ret;
+
+	for (auto& Kvp : DirectionMap)
+	{
+		//UE_LOG(LogCategory, Log, TEXT("Key: %s, Value: %d"), Kvp.Key, *Kvp.Value);
+		if (Kvp.Key < Lessest)
+		{
+			Lessest = Kvp.Key;
+			Ret = Kvp.Value;
+		}
+	}
+
+	return Ret;
 }
