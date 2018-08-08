@@ -11,6 +11,7 @@
 #include "Materials/Material.h"
 #include "Engine/World.h"
 
+
 ASC2AICharacter::ASC2AICharacter()
 {
 	// Set size for player capsule
@@ -44,45 +45,44 @@ ASC2AICharacter::ASC2AICharacter()
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
 
-	Group = EGroup::Enemy;
+	SC2AIComponent = CreateDefaultSubobject<USC2AIComponent>(TEXT("SC2AIComponent"));
+	SC2AIComponent->SetupAttachment(RootComponent);
+	SC2AIComponent->SetGroup(EGroup::Enemy);
 }
 
 void ASC2AICharacter::Tick(float DeltaSeconds)
 {
-    Super::Tick(DeltaSeconds);
-
-	if (EGroup::Enemy == Group)
-	{
-		return;
-	}
-
-	CalcMovement(DeltaSeconds);
-
-	LerpRotate(DeltaSeconds);
-
-	RotateCollisionForward(DeltaSeconds);
+	Super::Tick(DeltaSeconds);
 }
 
 void ASC2AICharacter::SetGroup(EGroup GroupType)
 {
-	Group = GroupType;
+	if (SC2AIComponent)
+	{
+		SC2AIComponent->SetGroup(GroupType);
+	}
 }
 
-FVector ASC2AICharacter::CalcLessestDirection(TMap<int32, FVector>& DirectionMap)
+void ASC2AICharacter::GetOverlapCount(int& FwdCount, int& LeftCount, int& RightCount, int& FwdLeftCount, int& FwdRightCount)
 {
-	int Lessest = 999999;
-
-	FVector Ret;
-
-	for (auto& Kvp : DirectionMap)
+	if (SC2AIComponent)
 	{
-		//UE_LOG(LogCategory, Log, TEXT("Key: %s, Value: %d"), Kvp.Key, *Kvp.Value);
-		if (Kvp.Key < Lessest)
-		{
-			Lessest = Kvp.Key;
-			Ret = Kvp.Value;
-		}
+		SC2AIComponent->GetOverlapCount(FwdCount, LeftCount, RightCount, FwdLeftCount, FwdRightCount);
 	}
+}
 
-	return Ret;
+void ASC2AICharacter::SetCollisionVisible(bool IsVisible)
+{
+	if (SC2AIComponent)
+	{
+		SC2AIComponent->SetCollisionVisible(IsVisible);
+	}
+}
+
+void ASC2AICharacter::SetDestDirection(const FVector& Direction)
+{
+	if (SC2AIComponent)
+	{
+		SC2AIComponent->SetDestDirection(Direction);
+	}
 }

@@ -9,6 +9,7 @@
 
 #include "SC2AICharacter.h"
 #include "MyAIController.h"
+#include "SC2AIComponent.h"
 
 ASC2AIGameMode::ASC2AIGameMode()
 {
@@ -33,6 +34,7 @@ ASC2AIGameMode::ASC2AIGameMode()
 	
 	//SpectatorClass = ASpectatorPawn::StaticClass();
 
+	DestDirection = FVector(0.f, 1.f, 0.f);
 	SpawnRotOffset = FRotator(0.f, 90.f, 0.f);
 	SpawnLocOffset = FVector(50.f, 0.f, 0.f);
 	LocBase = FVector(-70.f, -2000.f, 500.f);
@@ -109,6 +111,7 @@ void ASC2AIGameMode::SpawnCharacter()
 	{
 		Char->SpawnDefaultController();
 		Char->SetGroup(EGroup::Ally);
+		Char->SetDestDirection(DestDirection);
 
 		CharList.Add(Char);
 		/*if (AMyAIController* Controller = Cast<AMyAIController>(Char->GetController()))

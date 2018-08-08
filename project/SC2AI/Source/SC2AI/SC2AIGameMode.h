@@ -41,6 +41,9 @@ private:
 	TSubclassOf<ASC2AICharacter> CharClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = AI)
+		FVector DestDirection;
+
+	UPROPERTY(EditDefaultsOnly, Category = AI)
 		FRotator SpawnRotOffset;
 
 	UPROPERTY(EditDefaultsOnly, Category = AI)
