@@ -14,30 +14,36 @@ USC2AIComponent::USC2AIComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	CalcDelayTime = 1.f;
-	RotateLerpTime = 0.f;
+	RotateLerpTime90Degree = 0.3f;
 	RotateLerpDuration = 0.3f;
+	RotateLerpTime = 0.f;
 
 	FwdBox = CreateDefaultSubobject<UBoxComponent>(TEXT("FwdBox"));
+	FwdBox->SetBoxExtent(FVector(20.f, 20.f, 20.f));
 	FwdBox->SetupAttachment(this);
 	FwdBox->AddLocalOffset(FVector(75.f, 0.f, 0.f));
 	FwdBox->SetCollisionProfileName(TEXT("RoundBoxPreset"));
 
 	LeftBox = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftBox"));
+	LeftBox->SetBoxExtent(FVector(20.f, 20.f, 20.f));
 	LeftBox->SetupAttachment(this);
 	LeftBox->AddLocalOffset(FVector(0.f, -75.f, 0.f));
 	LeftBox->SetCollisionProfileName(TEXT("RoundBoxPreset"));
 
 	RightBox = CreateDefaultSubobject<UBoxComponent>(TEXT("RightBox"));
+	RightBox->SetBoxExtent(FVector(20.f, 20.f, 20.f));
 	RightBox->SetupAttachment(this);
 	RightBox->AddLocalOffset(FVector(0.f, 75.f, 0.f));
 	RightBox->SetCollisionProfileName(TEXT("RoundBoxPreset"));
 
 	FwdLeftBox = CreateDefaultSubobject<UBoxComponent>(TEXT("FwdLeftBox"));
+	FwdLeftBox->SetBoxExtent(FVector(20.f, 20.f, 20.f));
 	FwdLeftBox->SetupAttachment(this);
 	FwdLeftBox->AddLocalOffset(FVector(75.f, -75.f, 0.f));
 	FwdLeftBox->SetCollisionProfileName(TEXT("RoundBoxPreset"));
 
 	FwdRightBox = CreateDefaultSubobject<UBoxComponent>(TEXT("FwdRightBox"));
+	FwdRightBox->SetBoxExtent(FVector(20.f, 20.f, 20.f));
 	FwdRightBox->SetupAttachment(this);
 	FwdRightBox->AddLocalOffset(FVector(75.f, 75.f, 0.f));
 	FwdRightBox->SetCollisionProfileName(TEXT("RoundBoxPreset"));
@@ -191,6 +197,7 @@ void USC2AIComponent::CalcMovement(float DeltaSeconds)
 						}
 					}
 
+					//find the direction that units count is least.
 					if (EOverlapBoxIndex::Left == Index)
 					{
 						if (CountArray[EOverlapBoxIndex::Left] == CountArray[EOverlapBoxIndex::Right])
@@ -235,6 +242,8 @@ void USC2AIComponent::RefreshLerpData()
 	{
 		//GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Emerald, FString("TTTTTTTTTTTT"));
 		RotateLerpTime = 0.f;
+		const float DotPro = FVector::DotProduct(LastDirection, CurrDirection);
+		RotateLerpDuration = DotPro == -1.f ? RotateLerpTime90Degree * 2 : RotateLerpTime90Degree;
 	}
 }
 
@@ -245,10 +254,36 @@ void USC2AIComponent::LerpRotateAndMove(float DeltaSeconds)
 		if (RotateLerpTime < RotateLerpDuration)
 		{
 			RotateLerpTime += DeltaSeconds;
-			
-			FVector NewDire = FMath::Lerp(LastDirection, CurrDirection, RotateLerpTime / RotateLerpDuration);
+
+			FVector LerpA = LastDirection;
+			FVector LerpB = CurrDirection;
+			float Alpha = 0.f;
+
+			//if angle between LastDirection and CurrDirection equal 180, turn to DestDire first, then turn to CurrDirection, avoid to turn backward.
+			const float DotPro = FVector::DotProduct(LastDirection, CurrDirection);
+			if (DotPro == -1.f)
+			{
+				float CharDotPro = FVector::DotProduct(Character->GetActorRotation().Vector(), CurrDirection);
+				if (CharDotPro < 0.f)
+				{
+					//from 180 degree to 90 degree.
+					LerpB = DestDirection;
+					Alpha = RotateLerpTime / (RotateLerpDuration / 2);
+				}
+				else
+				{
+					//from 90 degree to 0 degree.
+					LerpA = DestDirection;
+					Alpha = (RotateLerpTime - (RotateLerpDuration / 2)) / (RotateLerpDuration / 2);
+				}
+			}
+			else
+			{
+				Alpha = RotateLerpTime / RotateLerpDuration;
+			}
+
+			FVector NewDire = FMath::Lerp(LerpA, LerpB, Alpha);
 			Character->AddMovementInput(NewDire);
-			//GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Cyan, NewDire.ToString());
 		}
 		else
 		{

@@ -33,7 +33,7 @@ void ASC2AIPlayerController::PlayerTick(float DeltaTime)
 		MoveToMouseCursor();
 	}
 
-	if (SelectedCharacter && DebugWidget)
+	if (SelectedCharacter && SelectedCharacter->IsValidLowLevelFast() && DebugWidget)
 	{
 		if (DebugWidget->TxtDebug)
 		{

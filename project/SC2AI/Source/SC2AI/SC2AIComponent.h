@@ -82,7 +82,7 @@ protected:
 
 	const FVector DireFwd = FVector(1.f, 0.f, 0.f);
 	const FVector DireLeft = FVector(0.f, -1.f, 0.f);
-	const FVector DireRight = FVector(1.f, 1.f, 0.f);
+	const FVector DireRight = FVector(0.f, 1.f, 0.f);
 	const FVector DireFwdLeft = FVector(1.f, -1.f, 0.f);
 	const FVector DireFwdRight = FVector(1.f, 1.f, 0.f);
 
@@ -90,6 +90,7 @@ protected:
 	FVector LastDirection;
 
 	float RotateLerpDuration;
+	float RotateLerpTime90Degree;
 	float RotateLerpTime;
 
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
