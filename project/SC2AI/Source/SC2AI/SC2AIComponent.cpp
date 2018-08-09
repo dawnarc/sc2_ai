@@ -148,8 +148,14 @@ void USC2AIComponent::CalcMovement(float DeltaSeconds)
 			FwdRightBox->GetOverlappingActors(OverlapActors, ASC2AICharacter::StaticClass());
 			int FwdRightCount = OverlapActors.Num();
 
+			LeftBigBox->GetOverlappingActors(OverlapActors, ASC2AICharacter::StaticClass());
+			int LeftBigCount = OverlapActors.Num();
+
+			RightBigBox->GetOverlappingActors(OverlapActors, ASC2AICharacter::StaticClass());
+			int RightBigCount = OverlapActors.Num();
+
 			//if (LeftCount > 0 && RightCount > 0 && FwdLeftCount > 0 && FwdRightCount > 0)
-			if((FwdCount < 3 && LeftCount > 0 && RightCount > 0) && 0.f == BlockTime)
+			if((FwdCount < 3 && LeftCount > 0 && RightCount > 0) && 0.f == BlockTime || (LeftBigCount < 7 && RightBigCount < 7))
 			{
 				CurrDirection = GetMoveDiretion(DireFwd);
 			}
@@ -240,22 +246,12 @@ void USC2AIComponent::CalcMovement(float DeltaSeconds)
 					}
 
 					//if the difference of overlap count in two side BigBox is greater than 3, thus we choose the direction of BigBox that overlap count is least.
-					LeftBigBox->GetOverlappingActors(OverlapActors, ASC2AICharacter::StaticClass());
-					int LeftBigCount = OverlapActors.Num();
-
-					RightBigBox->GetOverlappingActors(OverlapActors, ASC2AICharacter::StaticClass());
-					int RightBigCount = OverlapActors.Num();
-
 					if (FMath::Abs(LeftBigCount - RightBigCount) >= 4)
 					{
-						if (FMath::Abs(LeftCount - RightCount) <= 1 || FMath::Abs(FwdLeftCount - FwdRightCount) <= 1 /*&& (EOverlapBoxIndex::Left == Index || EOverlapBoxIndex::Right == Index)*/)
+						if (FMath::Abs(LeftCount - RightCount) <= 1 || FMath::Abs(FwdLeftCount - FwdRightCount) <= 1)
 						{
 							Index = LeftBigCount > RightBigCount ? EOverlapBoxIndex::Right : EOverlapBoxIndex::Left;
 						}
-						/*else if (FMath::Abs(FwdLeftCount - FwdRightCount) == 1 && (EOverlapBoxIndex::FwdLeft == Index || EOverlapBoxIndex::FwdRight == Index))
-						{
-							Index = LeftBigCount > RightBigCount ? EOverlapBoxIndex::FwdRight : EOverlapBoxIndex::FwdLeft;
-						}*/
 					}
 
 					CurrDirection = GetMoveDiretion(DirectionArray[Index]);
