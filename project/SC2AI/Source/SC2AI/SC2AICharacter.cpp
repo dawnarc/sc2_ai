@@ -10,7 +10,9 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Materials/Material.h"
 #include "Engine/World.h"
+#include "Kismet/GameplayStatics.h"
 
+#include "SC2AIPlayerController.h"
 
 ASC2AICharacter::ASC2AICharacter()
 {
@@ -63,11 +65,11 @@ void ASC2AICharacter::SetGroup(EGroup GroupType)
 	}
 }
 
-void ASC2AICharacter::GetOverlapCount(int& FwdCount, int& LeftCount, int& RightCount, int& FwdLeftCount, int& FwdRightCount)
+void ASC2AICharacter::GetOverlapCount(int& FwdCount, int& LeftCount, int& RightCount, int& FwdLeftCount, int& FwdRightCount, int& BigLeftCount, int& BigRightCount)
 {
 	if (SC2AIComponent)
 	{
-		SC2AIComponent->GetOverlapCount(FwdCount, LeftCount, RightCount, FwdLeftCount, FwdRightCount);
+		SC2AIComponent->GetOverlapCount(FwdCount, LeftCount, RightCount, FwdLeftCount, FwdRightCount, BigLeftCount, BigRightCount);
 	}
 }
 
@@ -84,5 +86,18 @@ void ASC2AICharacter::SetDestDirection(const FVector& Direction)
 	if (SC2AIComponent)
 	{
 		SC2AIComponent->SetDestDirection(Direction);
+	}
+}
+
+void ASC2AICharacter::BeginDestroy()
+{
+	Super::BeginDestroy();
+
+	if (ASC2AIPlayerController* Controller = Cast<ASC2AIPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0)))
+	{
+		if (Controller->GetSelectedCharacter() == this)
+		{
+			Controller->ResetSelectedCharacter();
+		}
 	}
 }

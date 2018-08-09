@@ -23,6 +23,11 @@ ASC2AIPlayerController::ASC2AIPlayerController()
 	DebugWidget = nullptr;
 }
 
+void ASC2AIPlayerController::ResetSelectedCharacter()
+{
+	SelectedCharacter = nullptr;
+}
+
 void ASC2AIPlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
@@ -33,7 +38,7 @@ void ASC2AIPlayerController::PlayerTick(float DeltaTime)
 		MoveToMouseCursor();
 	}
 
-	if (SelectedCharacter && SelectedCharacter->IsValidLowLevelFast() && DebugWidget)
+	if (SelectedCharacter && DebugWidget)
 	{
 		if (DebugWidget->TxtDebug)
 		{
@@ -42,9 +47,11 @@ void ASC2AIPlayerController::PlayerTick(float DeltaTime)
 			int RightCount = -1;
 			int FwdLeftCount = -1;
 			int FwdRightCount = -1;
+			int BigLeftCount = -1;
+			int BigRightCount = -1;
 
-			SelectedCharacter->GetOverlapCount(FwdCount, LeftCount, RightCount, FwdLeftCount, FwdRightCount);
-			FString Text = FString::Printf(TEXT("F:%d\t\tL:%d\t\tR:%d\t\tFL:%d\t\tFR:%d"), FwdCount, LeftCount, RightCount, FwdLeftCount, FwdRightCount);
+			SelectedCharacter->GetOverlapCount(FwdCount, LeftCount, RightCount, FwdLeftCount, FwdRightCount, BigLeftCount, BigRightCount);
+			FString Text = FString::Printf(TEXT("F:%d\t\tL:%d\t\tR:%d\t\tFL:%d\t\tFR:%d\t\tBL:%d\t\tBR:%d"), FwdCount, LeftCount, RightCount, FwdLeftCount, FwdRightCount, BigLeftCount, BigRightCount);
 			DebugWidget->TxtDebug->SetText(FText::FromString(Text));
 
 			if (USkeletalMeshComponent* MeshComp = SelectedCharacter->GetMesh())
@@ -189,9 +196,4 @@ void ASC2AIPlayerController::OnMouseClick()
 		
 
 	}
-}
-
-void ASC2AIPlayerController::ShowDebugMessage()
-{
-
 }

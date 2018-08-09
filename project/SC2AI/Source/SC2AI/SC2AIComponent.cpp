@@ -48,6 +48,18 @@ USC2AIComponent::USC2AIComponent()
 	FwdRightBox->AddLocalOffset(FVector(75.f, 75.f, 0.f));
 	FwdRightBox->SetCollisionProfileName(TEXT("RoundBoxPreset"));
 
+	LeftBigBox = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftBigBox"));
+	LeftBigBox->SetBoxExtent(FVector(100.f, 80.f, 20.f));
+	LeftBigBox->SetupAttachment(this);
+	LeftBigBox->AddLocalOffset(FVector(60.f, -180.f, 0.f));
+	LeftBigBox->SetCollisionProfileName(TEXT("RoundBoxPreset"));
+
+	RightBigBox = CreateDefaultSubobject<UBoxComponent>(TEXT("RightBigBox"));
+	RightBigBox->SetBoxExtent(FVector(100.f, 80.f, 20.f));
+	RightBigBox->SetupAttachment(this);
+	RightBigBox->AddLocalOffset(FVector(60.f, 180.f, 0.f));
+	RightBigBox->SetCollisionProfileName(TEXT("RoundBoxPreset"));
+
 	DestDirection = FVector::ZeroVector;
 
 	IsCollisionHide = true;
@@ -202,29 +214,48 @@ void USC2AIComponent::CalcMovement(float DeltaSeconds)
 					{
 						if (CountArray[EOverlapBoxIndex::Left] == CountArray[EOverlapBoxIndex::Right])
 						{
-							if (CountArray[EOverlapBoxIndex::ForwardLeft] == CountArray[EOverlapBoxIndex::ForwardRight])
+							if (CountArray[EOverlapBoxIndex::FwdLeft] == CountArray[EOverlapBoxIndex::FwdRight])
 							{
 								Index = FMath::RandBool() ? EOverlapBoxIndex::Left : EOverlapBoxIndex::Right;
 							}
 							else
 							{
-								Index = CountArray[EOverlapBoxIndex::ForwardLeft] > CountArray[EOverlapBoxIndex::ForwardRight] ? EOverlapBoxIndex::Right : EOverlapBoxIndex::Left;
+								Index = CountArray[EOverlapBoxIndex::FwdLeft] > CountArray[EOverlapBoxIndex::FwdRight] ? EOverlapBoxIndex::Right : EOverlapBoxIndex::Left;
 							}
 						}
 					}
-					else if(EOverlapBoxIndex::ForwardLeft == Index)
+					else if(EOverlapBoxIndex::FwdLeft == Index)
 					{
-						if (CountArray[EOverlapBoxIndex::ForwardLeft] == CountArray[EOverlapBoxIndex::ForwardRight])
+						if (CountArray[EOverlapBoxIndex::FwdLeft] == CountArray[EOverlapBoxIndex::FwdRight])
 						{
 							if (CountArray[EOverlapBoxIndex::Left] == CountArray[EOverlapBoxIndex::Right])
 							{
-								Index = FMath::RandBool() ? EOverlapBoxIndex::ForwardLeft : EOverlapBoxIndex::ForwardRight;
+								Index = FMath::RandBool() ? EOverlapBoxIndex::FwdLeft : EOverlapBoxIndex::FwdRight;
 							}
 							else
 							{
-								Index = CountArray[EOverlapBoxIndex::Left] > CountArray[EOverlapBoxIndex::Right] ? EOverlapBoxIndex::ForwardRight : EOverlapBoxIndex::ForwardLeft;
+								Index = CountArray[EOverlapBoxIndex::Left] > CountArray[EOverlapBoxIndex::Right] ? EOverlapBoxIndex::FwdRight : EOverlapBoxIndex::FwdLeft;
 							}
 						}
+					}
+
+					//if the difference of overlap count in two side BigBox is greater than 3, thus we choose the direction of BigBox that overlap count is least.
+					LeftBigBox->GetOverlappingActors(OverlapActors, ASC2AICharacter::StaticClass());
+					int LeftBigCount = OverlapActors.Num();
+
+					RightBigBox->GetOverlappingActors(OverlapActors, ASC2AICharacter::StaticClass());
+					int RightBigCount = OverlapActors.Num();
+
+					if (FMath::Abs(LeftBigCount - RightBigCount) >= 4)
+					{
+						if (FMath::Abs(LeftCount - RightCount) <= 1 || FMath::Abs(FwdLeftCount - FwdRightCount) <= 1 /*&& (EOverlapBoxIndex::Left == Index || EOverlapBoxIndex::Right == Index)*/)
+						{
+							Index = LeftBigCount > RightBigCount ? EOverlapBoxIndex::Right : EOverlapBoxIndex::Left;
+						}
+						/*else if (FMath::Abs(FwdLeftCount - FwdRightCount) == 1 && (EOverlapBoxIndex::FwdLeft == Index || EOverlapBoxIndex::FwdRight == Index))
+						{
+							Index = LeftBigCount > RightBigCount ? EOverlapBoxIndex::FwdRight : EOverlapBoxIndex::FwdLeft;
+						}*/
 					}
 
 					CurrDirection = GetMoveDiretion(DirectionArray[Index]);
@@ -350,7 +381,7 @@ void USC2AIComponent::SetDestDirection(const FVector& Direction)
 	CurrDirection = GetMoveDiretion(DireFwd);
 }
 
-void USC2AIComponent::GetOverlapCount(int& FwdCount, int& LeftCount, int& RightCount, int& FwdLeftCount, int& FwdRightCount)
+void USC2AIComponent::GetOverlapCount(int& FwdCount, int& LeftCount, int& RightCount, int& FwdLeftCount, int& FwdRightCount, int& BigLeftCount, int& BigRightCount)
 {
 	TArray<AActor*> OverlapActors;
 
@@ -368,6 +399,12 @@ void USC2AIComponent::GetOverlapCount(int& FwdCount, int& LeftCount, int& RightC
 
 	FwdRightBox->GetOverlappingActors(OverlapActors, ASC2AICharacter::StaticClass());
 	FwdRightCount = OverlapActors.Num();
+
+	LeftBigBox->GetOverlappingActors(OverlapActors, ASC2AICharacter::StaticClass());
+	BigLeftCount = OverlapActors.Num();
+
+	RightBigBox->GetOverlappingActors(OverlapActors, ASC2AICharacter::StaticClass());
+	BigRightCount = OverlapActors.Num();
 }
 
 void USC2AIComponent::SetCollisionVisible(bool IsVisible)
@@ -377,6 +414,8 @@ void USC2AIComponent::SetCollisionVisible(bool IsVisible)
 	RightBox->SetHiddenInGame(!IsVisible);
 	FwdLeftBox->SetHiddenInGame(!IsVisible);
 	FwdRightBox->SetHiddenInGame(!IsVisible);
+	LeftBigBox->SetHiddenInGame(!IsVisible);
+	RightBigBox->SetHiddenInGame(!IsVisible);
 
 	IsSelected = IsVisible;
 }

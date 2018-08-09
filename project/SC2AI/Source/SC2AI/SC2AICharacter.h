@@ -27,11 +27,15 @@ public:
 
 	void SetGroup(EGroup GroupType);
 
-	void GetOverlapCount(int& FwdCount, int& LeftCount, int& RightCount, int& FwdLeftCount, int& FwdRightCount);
+	void GetOverlapCount(int& FwdCount, int& LeftCount, int& RightCount, int& FwdLeftCount, int& FwdRightCount, int& BigLeftCount, int& BigRightCount);
 
 	void SetCollisionVisible(bool IsVisible);
 
 	void SetDestDirection(const FVector& Direction);
+
+protected:
+
+	void BeginDestroy();
 
 private:
 	/** Top down camera */

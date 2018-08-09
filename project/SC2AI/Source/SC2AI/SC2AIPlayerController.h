@@ -17,6 +17,10 @@ class ASC2AIPlayerController : public APlayerController
 public:
 	ASC2AIPlayerController();
 
+	ASC2AICharacter* GetSelectedCharacter() {return SelectedCharacter;}
+
+	void ResetSelectedCharacter();
+
 protected:
 	/** True if the controlled character should navigate to the mouse cursor. */
 	uint32 bMoveToMouseCursor : 1;
@@ -54,10 +58,6 @@ protected:
 		UMaterialInterface* DefaultMaterial;
 
 	UDebugWidget* DebugWidget;
-
-private:
-
-	void ShowDebugMessage();
 
 private:
 

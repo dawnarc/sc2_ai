@@ -22,8 +22,8 @@ enum EOverlapBoxIndex
 	Forward_,	//不加下划线会和引擎代码命名冲突
 	Left,
 	Right,
-	ForwardLeft,
-	ForwardRight,
+	FwdLeft,
+	FwdRight,
 	Max,
 };
 
@@ -46,7 +46,7 @@ public:
 
 	void SetDestDirection(const FVector& Direction);
 
-	void GetOverlapCount(int& FwdCount, int& LeftCount, int& RightCount, int& FwdLeftCount, int& FwdRightCount);
+	void GetOverlapCount(int& FwdCount, int& LeftCount, int& RightCount, int& FwdLeftCount, int& FwdRightCount, int& BigLeftCount, int& BigRightCount);
 
 	void SetCollisionVisible(bool IsVisible);
 
@@ -107,6 +107,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 	UBoxComponent* FwdRightBox;
+
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+		UBoxComponent* LeftBigBox;
+
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+		UBoxComponent* RightBigBox;
 
 	FVector DestDirection;
 
