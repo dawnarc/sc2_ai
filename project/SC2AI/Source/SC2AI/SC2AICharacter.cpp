@@ -11,6 +11,7 @@
 #include "Materials/Material.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
+#include "RTSAIUtil.h"
 
 #include "SC2AIPlayerController.h"
 
@@ -62,7 +63,7 @@ void ASC2AICharacter::Tick(float DeltaSeconds)
 
 void ASC2AICharacter::SetGroup(EGroup GroupType)
 {
-	if (URTSCrowdAIComponent* Comp = GetRTSAIComponent())
+	if (URTSCrowdAIComponent* Comp = URTSAIUtil::GetRTSAIComponent(this))
 	{
 		Comp->SetGroup(GroupType);
 	}
@@ -70,7 +71,7 @@ void ASC2AICharacter::SetGroup(EGroup GroupType)
 
 void ASC2AICharacter::GetOverlapCount(int& FwdCount, int& LeftCount, int& RightCount, int& FwdLeftCount, int& FwdRightCount, int& BigLeftCount, int& BigRightCount)
 {
-	if (URTSCrowdAIComponent* Comp = GetRTSAIComponent())
+	if (URTSCrowdAIComponent* Comp = URTSAIUtil::GetRTSAIComponent(this))
 	{
 		Comp->GetOverlapCount(FwdCount, LeftCount, RightCount, FwdLeftCount, FwdRightCount, BigLeftCount, BigRightCount);
 	}
@@ -78,7 +79,7 @@ void ASC2AICharacter::GetOverlapCount(int& FwdCount, int& LeftCount, int& RightC
 
 void ASC2AICharacter::SetCollisionVisible(bool IsVisible)
 {
-	if (URTSCrowdAIComponent* Comp = GetRTSAIComponent())
+	if (URTSCrowdAIComponent* Comp = URTSAIUtil::GetRTSAIComponent(this))
 	{
 		Comp->SetCollisionVisible(IsVisible);
 	}
@@ -86,7 +87,7 @@ void ASC2AICharacter::SetCollisionVisible(bool IsVisible)
 
 void ASC2AICharacter::SetDestDirection(const FVector& Direction)
 {
-	if (URTSCrowdAIComponent* Comp = GetRTSAIComponent())
+	if (URTSCrowdAIComponent* Comp = URTSAIUtil::GetRTSAIComponent(this))
 	{
 		Comp->SetDestDirection(Direction);
 	}
@@ -103,16 +104,4 @@ void ASC2AICharacter::BeginDestroy()
 			Controller->ResetSelectedCharacter();
 		}
 	}
-}
-
-URTSCrowdAIComponent* ASC2AICharacter::GetRTSAIComponent()
-{
-	URTSCrowdAIComponent* Ret = nullptr;
-	TArray<UActorComponent*> Components = GetComponentsByClass(URTSCrowdAIComponent::StaticClass());
-
-	if (Components.Num() > 0)
-	{
-		Ret = Cast<URTSCrowdAIComponent>(Components[0]);
-	}
-	return Ret;
 }
