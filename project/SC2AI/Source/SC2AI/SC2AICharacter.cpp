@@ -49,10 +49,10 @@ ASC2AICharacter::ASC2AICharacter()
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
 
-	SC2AIComponent = CreateDefaultSubobject<USC2AIComponent>(TEXT("SC2AIComponent"));
+	/*SC2AIComponent = CreateDefaultSubobject<USC2AIComponent>(TEXT("SC2AIComponent"));
 	SC2AIComponent->SetupAttachment(RootComponent);
 	SC2AIComponent->SetGroup(EGroup::Enemy);
-	SC2AIComponent->SetCharacterCaptureRadius(CaptureRadius);
+	SC2AIComponent->SetCharacterCaptureRadius(CaptureRadius);*/
 }
 
 void ASC2AICharacter::Tick(float DeltaSeconds)
@@ -62,33 +62,33 @@ void ASC2AICharacter::Tick(float DeltaSeconds)
 
 void ASC2AICharacter::SetGroup(EGroup GroupType)
 {
-	if (SC2AIComponent)
+	if (URTSCrowdAIComponent* Comp = GetRTSAIComponent())
 	{
-		SC2AIComponent->SetGroup(GroupType);
+		Comp->SetGroup(GroupType);
 	}
 }
 
 void ASC2AICharacter::GetOverlapCount(int& FwdCount, int& LeftCount, int& RightCount, int& FwdLeftCount, int& FwdRightCount, int& BigLeftCount, int& BigRightCount)
 {
-	if (SC2AIComponent)
+	if (URTSCrowdAIComponent* Comp = GetRTSAIComponent())
 	{
-		SC2AIComponent->GetOverlapCount(FwdCount, LeftCount, RightCount, FwdLeftCount, FwdRightCount, BigLeftCount, BigRightCount);
+		Comp->GetOverlapCount(FwdCount, LeftCount, RightCount, FwdLeftCount, FwdRightCount, BigLeftCount, BigRightCount);
 	}
 }
 
 void ASC2AICharacter::SetCollisionVisible(bool IsVisible)
 {
-	if (SC2AIComponent)
+	if (URTSCrowdAIComponent* Comp = GetRTSAIComponent())
 	{
-		SC2AIComponent->SetCollisionVisible(IsVisible);
+		Comp->SetCollisionVisible(IsVisible);
 	}
 }
 
 void ASC2AICharacter::SetDestDirection(const FVector& Direction)
 {
-	if (SC2AIComponent)
+	if (URTSCrowdAIComponent* Comp = GetRTSAIComponent())
 	{
-		SC2AIComponent->SetDestDirection(Direction);
+		Comp->SetDestDirection(Direction);
 	}
 }
 
@@ -103,4 +103,16 @@ void ASC2AICharacter::BeginDestroy()
 			Controller->ResetSelectedCharacter();
 		}
 	}
+}
+
+URTSCrowdAIComponent* ASC2AICharacter::GetRTSAIComponent()
+{
+	URTSCrowdAIComponent* Ret = nullptr;
+	TArray<UActorComponent*> Components = GetComponentsByClass(URTSCrowdAIComponent::StaticClass());
+
+	if (Components.Num() > 0)
+	{
+		Ret = Cast<URTSCrowdAIComponent>(Components[0]);
+	}
+	return Ret;
 }

@@ -1,14 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "SC2AIComponent.h"
+#include "RTSCrowdAIComponent.h"
 #include "Components/BoxComponent.h"
 #include "Math/RotationMatrix.h"
 #include "EngineUtils.h"
 
-#include "SC2AICharacter.h"
-
 // Sets default values for this component's properties
-USC2AIComponent::USC2AIComponent()
+URTSCrowdAIComponent::URTSCrowdAIComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -61,7 +59,7 @@ USC2AIComponent::USC2AIComponent()
 	RightBigBox->AddLocalOffset(FVector(60.f, 180.f, 0.f));
 	RightBigBox->SetCollisionProfileName(TEXT("RoundBoxPreset"));*/
 
-	CharacterCapsuleRadius = 0.f;
+	CharacterCapsuleRadius = 42.f;
 
 	DestDirection = FVector::ZeroVector;
 
@@ -76,7 +74,7 @@ USC2AIComponent::USC2AIComponent()
 }
 
 // Called every frame
-void USC2AIComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void URTSCrowdAIComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
@@ -107,7 +105,7 @@ void USC2AIComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 }
 
 // Called when the game starts
-void USC2AIComponent::BeginPlay()
+void URTSCrowdAIComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -118,7 +116,7 @@ void USC2AIComponent::BeginPlay()
 	DirectionArray.Add(DireFwdRight);
 }
 
-void USC2AIComponent::UpdateBox(float DeltaTime)
+void URTSCrowdAIComponent::UpdateBox(float DeltaTime)
 {
 	if (OverlapCheckTime < OverlapCheckInterval)
 	{
@@ -139,7 +137,7 @@ void USC2AIComponent::UpdateBox(float DeltaTime)
 		LeftBigBoxEx.SetWorldLocation(CompLoc, CompRot);
 		RightBigBoxEx.SetWorldLocation(CompLoc, CompRot);
 
-		if (ASC2AICharacter* Parent = Cast<ASC2AICharacter>(GetAttachmentRootActor()))
+		if (APawn* Parent = Cast<APawn>(GetAttachmentRootActor()))
 		{
 			FwdBoxEx.OverlapCount = 0.f;
 			LeftBoxEx.OverlapCount = 0.f;
@@ -155,7 +153,7 @@ void USC2AIComponent::UpdateBox(float DeltaTime)
 				int temp = 0;
 			}
 
-			for (TActorIterator<ASC2AICharacter> Iter(GetWorld()); Iter; ++Iter)
+			for (TActorIterator<APawn> Iter(GetWorld()); Iter; ++Iter)
 			{
 				if (*Iter != Parent)
 				{
@@ -201,7 +199,7 @@ void USC2AIComponent::UpdateBox(float DeltaTime)
 	}
 }
 
-void USC2AIComponent::CalcMovement(float DeltaSeconds)
+void URTSCrowdAIComponent::CalcMovement(float DeltaSeconds)
 {
 	if (CalcDelayTime > 0.f)
 	{
@@ -221,25 +219,25 @@ void USC2AIComponent::CalcMovement(float DeltaSeconds)
 		{
 			/*TArray<AActor*> OverlapActors;
 
-			FwdBox->GetOverlappingActors(OverlapActors, ASC2AICharacter::StaticClass());
+			FwdBox->GetOverlappingActors(OverlapActors, APawn::StaticClass());
 			int FwdCount = OverlapActors.Num();
 
-			LeftBox->GetOverlappingActors(OverlapActors, ASC2AICharacter::StaticClass());
+			LeftBox->GetOverlappingActors(OverlapActors, APawn::StaticClass());
 			int LeftCount = OverlapActors.Num();
 
-			RightBox->GetOverlappingActors(OverlapActors, ASC2AICharacter::StaticClass());
+			RightBox->GetOverlappingActors(OverlapActors, APawn::StaticClass());
 			int RightCount = OverlapActors.Num();
 
-			FwdLeftBox->GetOverlappingActors(OverlapActors, ASC2AICharacter::StaticClass());
+			FwdLeftBox->GetOverlappingActors(OverlapActors, APawn::StaticClass());
 			int FwdLeftCount = OverlapActors.Num();
 
-			FwdRightBox->GetOverlappingActors(OverlapActors, ASC2AICharacter::StaticClass());
+			FwdRightBox->GetOverlappingActors(OverlapActors, APawn::StaticClass());
 			int FwdRightCount = OverlapActors.Num();
 
-			LeftBigBox->GetOverlappingActors(OverlapActors, ASC2AICharacter::StaticClass());
+			LeftBigBox->GetOverlappingActors(OverlapActors, APawn::StaticClass());
 			int LeftBigCount = OverlapActors.Num();
 
-			RightBigBox->GetOverlappingActors(OverlapActors, ASC2AICharacter::StaticClass());
+			RightBigBox->GetOverlappingActors(OverlapActors, APawn::StaticClass());
 			int RightBigCount = OverlapActors.Num();*/
 
 			int FwdCount = FwdBoxEx.OverlapCount;
@@ -273,31 +271,31 @@ void USC2AIComponent::CalcMovement(float DeltaSeconds)
 
 				/*if (FwdBox)
 				{
-					FwdBox->GetOverlappingActors(OverlapActors, ASC2AICharacter::StaticClass());
+					FwdBox->GetOverlappingActors(OverlapActors, APawn::StaticClass());
 					CountArray.Add(OverlapActors.Num());
 				}
 
 				if (LeftBox)
 				{
-					LeftBox->GetOverlappingActors(OverlapActors, ASC2AICharacter::StaticClass());
+					LeftBox->GetOverlappingActors(OverlapActors, APawn::StaticClass());
 					CountArray.Add(OverlapActors.Num());
 				}
 
 				if (RightBox)
 				{
-					RightBox->GetOverlappingActors(OverlapActors, ASC2AICharacter::StaticClass());
+					RightBox->GetOverlappingActors(OverlapActors, APawn::StaticClass());
 					CountArray.Add(OverlapActors.Num());
 				}
 
 				if (FwdLeftBox)
 				{
-					FwdLeftBox->GetOverlappingActors(OverlapActors, ASC2AICharacter::StaticClass());
+					FwdLeftBox->GetOverlappingActors(OverlapActors, APawn::StaticClass());
 					CountArray.Add(OverlapActors.Num());
 				}
 
 				if (FwdRightBox)
 				{
-					FwdRightBox->GetOverlappingActors(OverlapActors, ASC2AICharacter::StaticClass());
+					FwdRightBox->GetOverlappingActors(OverlapActors, APawn::StaticClass());
 					CountArray.Add(OverlapActors.Num());
 				}*/
 
@@ -372,7 +370,7 @@ void USC2AIComponent::CalcMovement(float DeltaSeconds)
 	}
 }
 
-void USC2AIComponent::RefreshLerpData()
+void URTSCrowdAIComponent::RefreshLerpData()
 {
 	if (!LastDirection.Equals(CurrDirection))
 	{
@@ -382,9 +380,9 @@ void USC2AIComponent::RefreshLerpData()
 	}
 }
 
-void USC2AIComponent::LerpRotateAndMove(float DeltaSeconds)
+void URTSCrowdAIComponent::LerpRotateAndMove(float DeltaSeconds)
 {
-	if (ASC2AICharacter* Character = Cast<ASC2AICharacter>(GetAttachmentRootActor()))
+	if (APawn* Pawn = Cast<APawn>(GetAttachmentRootActor()))
 	{
 		if (RotateLerpTime < RotateLerpDuration)
 		{
@@ -398,7 +396,7 @@ void USC2AIComponent::LerpRotateAndMove(float DeltaSeconds)
 			const float DotPro = FVector::DotProduct(LastDirection, CurrDirection);
 			if (DotPro == -1.f)
 			{
-				float CharDotPro = FVector::DotProduct(Character->GetActorRotation().Vector(), CurrDirection);
+				float CharDotPro = FVector::DotProduct(Pawn->GetActorRotation().Vector(), CurrDirection);
 				if (CharDotPro < 0.f)
 				{
 					//from 180 degree to 90 degree.
@@ -418,22 +416,22 @@ void USC2AIComponent::LerpRotateAndMove(float DeltaSeconds)
 			}
 
 			FVector NewDire = FMath::Lerp(LerpA, LerpB, Alpha);
-			Character->AddMovementInput(NewDire);
+			Pawn->AddMovementInput(NewDire);
 		}
 		else
 		{
-			Character->AddMovementInput(CurrDirection);
+			Pawn->AddMovementInput(CurrDirection);
 			//GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Green, CurrDirection.ToString());
 		}
 	}
 }
 
-void USC2AIComponent::RotateCollisionForward(float DeltaSeconds)
+void URTSCrowdAIComponent::RotateCollisionForward(float DeltaSeconds)
 {
 	SetWorldRotation(DestDirection.Rotation());
 }
 
-void USC2AIComponent::RefreshBlockInfo(float DeltaSeconds)
+void URTSCrowdAIComponent::RefreshBlockInfo(float DeltaSeconds)
 {
 	if (IsSelected)
 	{
@@ -460,10 +458,10 @@ void USC2AIComponent::RefreshBlockInfo(float DeltaSeconds)
 	}
 }
 
-FVector USC2AIComponent::GetMoveDiretion(const FVector& InputVector)
+FVector URTSCrowdAIComponent::GetMoveDiretion(const FVector& InputVector)
 {
 	FVector Ret = FVector::ZeroVector;
-	if (ASC2AICharacter* Character = Cast<ASC2AICharacter>(GetAttachmentRootActor()))
+	if (APawn* Character = Cast<APawn>(GetAttachmentRootActor()))
 	{
 		//FRotator Rot = (FRotationMatrix(InputVector.Rotation()) * FRotationMatrix(Character->GetActorRotation())).Rotator();
 		FRotator Rot = (FRotationMatrix(InputVector.Rotation()) * FRotationMatrix(DestDirection.Rotation())).Rotator();
@@ -474,40 +472,40 @@ FVector USC2AIComponent::GetMoveDiretion(const FVector& InputVector)
 	return Ret.GetSafeNormal();
 }
 
-void USC2AIComponent::InitOverlapBox(ACharacter* Target)
+void URTSCrowdAIComponent::InitOverlapBox(ACharacter* Target)
 {
 	
 }
 
-void USC2AIComponent::SetDestDirection(const FVector& Direction)
+void URTSCrowdAIComponent::SetDestDirection(const FVector& Direction)
 {
 	DestDirection = Direction;
 	CurrDirection = GetMoveDiretion(DireFwd);
 }
 
-void USC2AIComponent::GetOverlapCount(int& FwdCount, int& LeftCount, int& RightCount, int& FwdLeftCount, int& FwdRightCount, int& BigLeftCount, int& BigRightCount)
+void URTSCrowdAIComponent::GetOverlapCount(int& FwdCount, int& LeftCount, int& RightCount, int& FwdLeftCount, int& FwdRightCount, int& BigLeftCount, int& BigRightCount)
 {
 	/*TArray<AActor*> OverlapActors;
 
-	FwdBox->GetOverlappingActors(OverlapActors, ASC2AICharacter::StaticClass());
+	FwdBox->GetOverlappingActors(OverlapActors, APawn::StaticClass());
 	FwdCount = OverlapActors.Num();
 
-	LeftBox->GetOverlappingActors(OverlapActors, ASC2AICharacter::StaticClass());
+	LeftBox->GetOverlappingActors(OverlapActors, APawn::StaticClass());
 	LeftCount = OverlapActors.Num();
 
-	RightBox->GetOverlappingActors(OverlapActors, ASC2AICharacter::StaticClass());
+	RightBox->GetOverlappingActors(OverlapActors, APawn::StaticClass());
 	RightCount = OverlapActors.Num();
 
-	FwdLeftBox->GetOverlappingActors(OverlapActors, ASC2AICharacter::StaticClass());
+	FwdLeftBox->GetOverlappingActors(OverlapActors, APawn::StaticClass());
 	FwdLeftCount = OverlapActors.Num();
 
-	FwdRightBox->GetOverlappingActors(OverlapActors, ASC2AICharacter::StaticClass());
+	FwdRightBox->GetOverlappingActors(OverlapActors, APawn::StaticClass());
 	FwdRightCount = OverlapActors.Num();
 
-	LeftBigBox->GetOverlappingActors(OverlapActors, ASC2AICharacter::StaticClass());
+	LeftBigBox->GetOverlappingActors(OverlapActors, APawn::StaticClass());
 	BigLeftCount = OverlapActors.Num();
 
-	RightBigBox->GetOverlappingActors(OverlapActors, ASC2AICharacter::StaticClass());
+	RightBigBox->GetOverlappingActors(OverlapActors, APawn::StaticClass());
 	BigRightCount = OverlapActors.Num();*/
 
 	FwdCount = FwdBoxEx.OverlapCount;
@@ -519,7 +517,7 @@ void USC2AIComponent::GetOverlapCount(int& FwdCount, int& LeftCount, int& RightC
 	BigRightCount = RightBigBoxEx.OverlapCount;
 }
 
-void USC2AIComponent::SetCollisionVisible(bool IsVisible)
+void URTSCrowdAIComponent::SetCollisionVisible(bool IsVisible)
 {
 	/*if (FwdBox)
 	{
@@ -559,7 +557,7 @@ void USC2AIComponent::SetCollisionVisible(bool IsVisible)
 	IsSelected = IsVisible;
 }
 
-void USC2AIComponent::SetCharacterCaptureRadius(float Radius)
+void URTSCrowdAIComponent::SetCharacterCaptureRadius(float Radius)
 {
 	CharacterCapsuleRadius = Radius;
 }

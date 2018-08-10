@@ -9,5 +9,7 @@ public class SC2AI : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore"});
-	}
+
+        //PublicIncludePaths.AddRange(new string[] { "RTSAI/Public", "RTSAI/Classes" });
+    }
 }

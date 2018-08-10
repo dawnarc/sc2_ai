@@ -1,19 +1,26 @@
 {
-	"FileVersion": 3,
-	"EngineAssociation": "4.20",
-	"Category": "",
-	"Description": "",
-	"Modules": [
-		{
-			"Name": "SC2AI",
-			"Type": "Runtime",
-			"LoadingPhase": "Default",
-			"AdditionalDependencies": [
-				"AIModule",
-				"UMG",
-				"CoreUObject",
-				"Engine"
-			]
-		}
-	]
+  "FileVersion": 3,
+  "EngineAssociation": "4.20",
+  "Category": "",
+  "Description": "",
+  "Modules": [
+    {
+      "Name": "SC2AI",
+      "Type": "Runtime",
+      "LoadingPhase": "Default",
+      "AdditionalDependencies": [
+        "AIModule",
+        "UMG",
+        "CoreUObject",
+        "Engine",
+        "RTSAI",
+      ]
+    }
+  ],
+  "Plugins": [
+    {
+      "Name": "RTSAI",
+      "Enabled": true
+    }
+  ]
 }

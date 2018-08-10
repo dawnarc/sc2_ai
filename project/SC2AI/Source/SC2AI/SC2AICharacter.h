@@ -4,10 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "SC2AIComponent.h"
+#include "RTSCrowdAIComponent.h"
 #include "SC2AICharacter.generated.h"
-
-class USC2AIComponent;
 
 UCLASS(Blueprintable)
 class ASC2AICharacter : public ACharacter
@@ -38,6 +36,10 @@ protected:
 	void BeginDestroy();
 
 private:
+
+	FORCEINLINE URTSCrowdAIComponent* GetRTSAIComponent();
+
+private:
 	/** Top down camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* TopDownCameraComponent;
@@ -51,6 +53,9 @@ private:
 		TMap<int32, FVector> DirectionMap;
 
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
-	USC2AIComponent* SC2AIComponent;
+		TSubclassOf<URTSCrowdAIComponent> SC2AIComponentClass;
+
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	URTSCrowdAIComponent* SC2AIComponent;
 };
 

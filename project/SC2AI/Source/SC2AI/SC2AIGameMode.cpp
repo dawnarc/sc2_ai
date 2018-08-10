@@ -9,7 +9,6 @@
 
 #include "SC2AICharacter.h"
 #include "MyAIController.h"
-#include "SC2AIComponent.h"
 
 ASC2AIGameMode::ASC2AIGameMode()
 {
@@ -18,21 +17,6 @@ ASC2AIGameMode::ASC2AIGameMode()
 
 	// use our custom PlayerController class
 	PlayerControllerClass = ASC2AIPlayerController::StaticClass();
-
-	// set default pawn class to our Blueprinted character
-	static ConstructorHelpers::FClassFinder<ASC2AICharacter> PlayerPawnBPClass(TEXT("/Game/TopDownCPP/Blueprints/TopDownCharacter"));
-	if (PlayerPawnBPClass.Class != NULL)
-	{
-		CharClass = PlayerPawnBPClass.Class;
-	}
-
-	static ConstructorHelpers::FClassFinder<APawn> CameraPawnBPClass(TEXT("/Game/TopDownCPP/Blueprints/CameraPawnBP"));
-	if (PlayerPawnBPClass.Class != NULL)
-	{
-		DefaultPawnClass = CameraPawnBPClass.Class;
-	}
-	
-	//SpectatorClass = ASpectatorPawn::StaticClass();
 
 	DestDirection = FVector(0.f, 1.f, 0.f);
 	SpawnRotOffset = FRotator(0.f, 90.f, 0.f);
@@ -53,30 +37,6 @@ ASC2AIGameMode::ASC2AIGameMode()
 void ASC2AIGameMode::Tick(float DeltaSecond)
 {
 	Super::Tick(DeltaSecond);
-
-	/*SpawnTime += DeltaSecond;
-	if (SpawnTime > SpawnInterval)
-	{
-		SpawnTime = 0.f;
-
-		for (int i = 0; i < SpawnCountPeerTime; i++)
-		{
-			FVector Loc = LocBase + FVector(100.f, 0.f, 0.f) * i + (OffsetFlag ? SpawnLocOffset : FVector::ZeroVector);
-			if (ASC2AICharacter* Char = GetWorld()->SpawnActor<ASC2AICharacter>(CharClass, Loc, SpawnRotOffset))
-			{
-				Char->SpawnDefaultController();
-				Char->SetGroup(EGroup::Ally);
-
-
-			}
-			else
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Cyan, FString("FFFFFFFFFFF"));
-			}
-		}
-
-		OffsetFlag = OffsetFlag ? false : true;
-	}*/
 }
 
 void ASC2AIGameMode::StartPlay()
@@ -107,17 +67,14 @@ void ASC2AIGameMode::AllMove(const FVector& Location)
 void ASC2AIGameMode::SpawnCharacter()
 {
 	FVector Loc = LocBase + FVector(FMath::RandRange(-RandDist, RandDist), FMath::RandRange(-RandDist, RandDist), 0.f);
-	if (ASC2AICharacter* Char = GetWorld()->SpawnActor<ASC2AICharacter>(CharClass, Loc, SpawnRotOffset))
+	if (ASC2AICharacter* Char = GetWorld()->SpawnActor<ASC2AICharacter>(CharacterClass, Loc, SpawnRotOffset))
 	{
 		Char->SpawnDefaultController();
 		Char->SetGroup(EGroup::Ally);
 		Char->SetDestDirection(DestDirection);
 
 		CharList.Add(Char);
-		/*if (AMyAIController* Controller = Cast<AMyAIController>(Char->GetController()))
-		{
-		EPathFollowingRequestResult::Type Ret = Controller->MoveToLocation(DestLoc);
-		}*/
+
 		CurrSpawnedCount++;
 	}
 	else

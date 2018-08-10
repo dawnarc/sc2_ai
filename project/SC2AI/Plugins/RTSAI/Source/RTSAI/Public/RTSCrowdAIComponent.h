@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h"
-#include "SC2AIComponent.generated.h"
+#include "RTSCrowdAIComponent.generated.h"
 
 class ACharacter;
 class UBoxComponent;
@@ -65,13 +65,13 @@ struct FakeOverlapBox
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class SC2AI_API USC2AIComponent : public USceneComponent
+class RTSAI_API URTSCrowdAIComponent : public USceneComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	USC2AIComponent();
+	URTSCrowdAIComponent();
 
 	void InitOverlapBox(ACharacter* Target);
 
@@ -162,7 +162,9 @@ protected:
 	FakeOverlapBox LeftBigBoxEx = FakeOverlapBox(FVector(60.f, -180.f, 0.f), FVector(100.f, 80.f, 20.f));
 	FakeOverlapBox RightBigBoxEx = FakeOverlapBox(FVector(60.f, 180.f, 0.f), FVector(100.f, 80.f, 20.f));
 
+	UPROPERTY(EditDefaultsOnly, Category = AI)
 	float CharacterCapsuleRadius;
+
 	//*********** Overlap check simulate (End)**************
 
 	float OverlapCheckTime = 0;

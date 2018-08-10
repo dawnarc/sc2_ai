@@ -38,7 +38,8 @@ protected:
 
 private:
 
-	TSubclassOf<ASC2AICharacter> CharClass;
+	UPROPERTY(EditDefaultsOnly, Category = AI)
+	TSubclassOf<ASC2AICharacter> CharacterClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = AI)
 		FVector DestDirection;
