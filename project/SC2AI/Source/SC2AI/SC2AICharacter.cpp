@@ -17,7 +17,9 @@
 ASC2AICharacter::ASC2AICharacter()
 {
 	// Set size for player capsule
-	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+	const float CaptureRadius = 42.f;
+	const float CaptureHalfHeight = 96.0f;
+	GetCapsuleComponent()->InitCapsuleSize(CaptureRadius, CaptureHalfHeight);
 
 	// Don't rotate character to camera direction
 	bUseControllerRotationPitch = false;
@@ -50,6 +52,7 @@ ASC2AICharacter::ASC2AICharacter()
 	SC2AIComponent = CreateDefaultSubobject<USC2AIComponent>(TEXT("SC2AIComponent"));
 	SC2AIComponent->SetupAttachment(RootComponent);
 	SC2AIComponent->SetGroup(EGroup::Enemy);
+	SC2AIComponent->SetCharacterCaptureRadius(CaptureRadius);
 }
 
 void ASC2AICharacter::Tick(float DeltaSeconds)

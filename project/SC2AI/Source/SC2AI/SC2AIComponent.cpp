@@ -3,6 +3,7 @@
 #include "SC2AIComponent.h"
 #include "Components/BoxComponent.h"
 #include "Math/RotationMatrix.h"
+#include "EngineUtils.h"
 
 #include "SC2AICharacter.h"
 
@@ -18,7 +19,7 @@ USC2AIComponent::USC2AIComponent()
 	RotateLerpDuration = 0.3f;
 	RotateLerpTime = 0.f;
 
-	FwdBox = CreateDefaultSubobject<UBoxComponent>(TEXT("FwdBox"));
+	/*FwdBox = CreateDefaultSubobject<UBoxComponent>(TEXT("FwdBox"));
 	FwdBox->SetBoxExtent(FVector(20.f, 20.f, 20.f));
 	FwdBox->SetupAttachment(this);
 	FwdBox->AddLocalOffset(FVector(75.f, 0.f, 0.f));
@@ -58,7 +59,9 @@ USC2AIComponent::USC2AIComponent()
 	RightBigBox->SetBoxExtent(FVector(100.f, 80.f, 20.f));
 	RightBigBox->SetupAttachment(this);
 	RightBigBox->AddLocalOffset(FVector(60.f, 180.f, 0.f));
-	RightBigBox->SetCollisionProfileName(TEXT("RoundBoxPreset"));
+	RightBigBox->SetCollisionProfileName(TEXT("RoundBoxPreset"));*/
+
+	CharacterCapsuleRadius = 0.f;
 
 	DestDirection = FVector::ZeroVector;
 
@@ -92,6 +95,8 @@ void USC2AIComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 		return;
 	}
 
+	UpdateBox(DeltaTime);
+
 	CalcMovement(DeltaTime);
 
 	LerpRotateAndMove(DeltaTime);
@@ -113,6 +118,89 @@ void USC2AIComponent::BeginPlay()
 	DirectionArray.Add(DireFwdRight);
 }
 
+void USC2AIComponent::UpdateBox(float DeltaTime)
+{
+	if (OverlapCheckTime < OverlapCheckInterval)
+	{
+		OverlapCheckTime += DeltaTime;
+	}
+	else
+	{
+		OverlapCheckTime = 0.f;
+
+		const FVector CompLoc = GetComponentLocation();
+		const FRotator CompRot = GetComponentRotation();
+
+		FwdBoxEx.SetWorldLocation(CompLoc, CompRot);
+		LeftBoxEx.SetWorldLocation(CompLoc, CompRot);
+		RightBoxEx.SetWorldLocation(CompLoc, CompRot);
+		FwdLeftBoxEx.SetWorldLocation(CompLoc, CompRot);
+		FwdRightBoxEx.SetWorldLocation(CompLoc, CompRot);
+		LeftBigBoxEx.SetWorldLocation(CompLoc, CompRot);
+		RightBigBoxEx.SetWorldLocation(CompLoc, CompRot);
+
+		if (ASC2AICharacter* Parent = Cast<ASC2AICharacter>(GetAttachmentRootActor()))
+		{
+			FwdBoxEx.OverlapCount = 0.f;
+			LeftBoxEx.OverlapCount = 0.f;
+			RightBoxEx.OverlapCount = 0.f;
+			FwdLeftBoxEx.OverlapCount = 0.f;
+			FwdRightBoxEx.OverlapCount = 0.f;
+			LeftBigBoxEx.OverlapCount = 0.f;
+			RightBigBoxEx.OverlapCount = 0.f;
+
+			if (IsSelected)
+			{
+				//for breakpoint
+				int temp = 0;
+			}
+
+			for (TActorIterator<ASC2AICharacter> Iter(GetWorld()); Iter; ++Iter)
+			{
+				if (*Iter != Parent)
+				{
+					FVector UnitLoc = Iter->GetActorLocation();
+
+					if (FwdBoxEx.IsInside(UnitLoc, CharacterCapsuleRadius))
+					{
+						FwdBoxEx.OverlapCount++;
+					}
+
+					if (LeftBoxEx.IsInside(UnitLoc, CharacterCapsuleRadius))
+					{
+						LeftBoxEx.OverlapCount++;
+					}
+
+					if (RightBoxEx.IsInside(UnitLoc, CharacterCapsuleRadius))
+					{
+						RightBoxEx.OverlapCount++;
+					}
+
+					if (FwdLeftBoxEx.IsInside(UnitLoc, CharacterCapsuleRadius))
+					{
+						FwdLeftBoxEx.OverlapCount++;
+					}
+
+					if (FwdRightBoxEx.IsInside(UnitLoc, CharacterCapsuleRadius))
+					{
+						FwdRightBoxEx.OverlapCount++;
+					}
+
+					if (LeftBigBoxEx.IsInside(UnitLoc, CharacterCapsuleRadius))
+					{
+						LeftBigBoxEx.OverlapCount++;
+					}
+
+					if (RightBigBoxEx.IsInside(UnitLoc, CharacterCapsuleRadius))
+					{
+						RightBigBoxEx.OverlapCount++;
+					}
+				}
+			}
+		}
+	}
+}
+
 void USC2AIComponent::CalcMovement(float DeltaSeconds)
 {
 	if (CalcDelayTime > 0.f)
@@ -129,9 +217,9 @@ void USC2AIComponent::CalcMovement(float DeltaSeconds)
 	{
 		LastDirection = CurrDirection;
 
-		if (FwdBox)
+		if (1/*FwdBox && LeftBox && RightBox && FwdLeftBox && FwdRightBox && LeftBigBox && RightBigBox*/)
 		{
-			TArray<AActor*> OverlapActors;
+			/*TArray<AActor*> OverlapActors;
 
 			FwdBox->GetOverlappingActors(OverlapActors, ASC2AICharacter::StaticClass());
 			int FwdCount = OverlapActors.Num();
@@ -152,7 +240,21 @@ void USC2AIComponent::CalcMovement(float DeltaSeconds)
 			int LeftBigCount = OverlapActors.Num();
 
 			RightBigBox->GetOverlappingActors(OverlapActors, ASC2AICharacter::StaticClass());
-			int RightBigCount = OverlapActors.Num();
+			int RightBigCount = OverlapActors.Num();*/
+
+			int FwdCount = FwdBoxEx.OverlapCount;
+			int LeftCount = LeftBoxEx.OverlapCount;
+			int RightCount = RightBoxEx.OverlapCount;
+			int FwdLeftCount = FwdLeftBoxEx.OverlapCount;
+			int FwdRightCount = FwdRightBoxEx.OverlapCount;
+			int LeftBigCount = LeftBigBoxEx.OverlapCount;
+			int RightBigCount = RightBigBoxEx.OverlapCount;
+
+			if (IsSelected)
+			{
+				//for breakpoint
+				int temp = 0;
+			}
 
 			//if (LeftCount > 0 && RightCount > 0 && FwdLeftCount > 0 && FwdRightCount > 0)
 			if((FwdCount < 3 && LeftCount > 0 && RightCount > 0) && 0.f == BlockTime || (LeftBigCount < 7 && RightBigCount < 7))
@@ -163,7 +265,13 @@ void USC2AIComponent::CalcMovement(float DeltaSeconds)
 			{
 				CountArray.Reset();
 
-				if (FwdBox)
+				CountArray.Add(FwdCount);
+				CountArray.Add(LeftCount);
+				CountArray.Add(RightCount);
+				CountArray.Add(FwdLeftCount);
+				CountArray.Add(FwdRightCount);
+
+				/*if (FwdBox)
 				{
 					FwdBox->GetOverlappingActors(OverlapActors, ASC2AICharacter::StaticClass());
 					CountArray.Add(OverlapActors.Num());
@@ -191,10 +299,11 @@ void USC2AIComponent::CalcMovement(float DeltaSeconds)
 				{
 					FwdRightBox->GetOverlappingActors(OverlapActors, ASC2AICharacter::StaticClass());
 					CountArray.Add(OverlapActors.Num());
-				}
+				}*/
 
 				if (IsSelected)
 				{
+					//for breakpoint
 					int temp = 0;
 				}
 
@@ -267,7 +376,6 @@ void USC2AIComponent::RefreshLerpData()
 {
 	if (!LastDirection.Equals(CurrDirection))
 	{
-		//GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Emerald, FString("TTTTTTTTTTTT"));
 		RotateLerpTime = 0.f;
 		const float DotPro = FVector::DotProduct(LastDirection, CurrDirection);
 		RotateLerpDuration = DotPro == -1.f ? RotateLerpTime90Degree * 2 : RotateLerpTime90Degree;
@@ -379,7 +487,7 @@ void USC2AIComponent::SetDestDirection(const FVector& Direction)
 
 void USC2AIComponent::GetOverlapCount(int& FwdCount, int& LeftCount, int& RightCount, int& FwdLeftCount, int& FwdRightCount, int& BigLeftCount, int& BigRightCount)
 {
-	TArray<AActor*> OverlapActors;
+	/*TArray<AActor*> OverlapActors;
 
 	FwdBox->GetOverlappingActors(OverlapActors, ASC2AICharacter::StaticClass());
 	FwdCount = OverlapActors.Num();
@@ -400,18 +508,58 @@ void USC2AIComponent::GetOverlapCount(int& FwdCount, int& LeftCount, int& RightC
 	BigLeftCount = OverlapActors.Num();
 
 	RightBigBox->GetOverlappingActors(OverlapActors, ASC2AICharacter::StaticClass());
-	BigRightCount = OverlapActors.Num();
+	BigRightCount = OverlapActors.Num();*/
+
+	FwdCount = FwdBoxEx.OverlapCount;
+	LeftCount = LeftBoxEx.OverlapCount;
+	RightCount = RightBoxEx.OverlapCount;
+	FwdLeftCount = FwdLeftBoxEx.OverlapCount;
+	FwdRightCount = FwdRightBoxEx.OverlapCount;
+	BigLeftCount = LeftBigBoxEx.OverlapCount;
+	BigRightCount = RightBigBoxEx.OverlapCount;
 }
 
 void USC2AIComponent::SetCollisionVisible(bool IsVisible)
 {
-	FwdBox->SetHiddenInGame(!IsVisible);
-	LeftBox->SetHiddenInGame(!IsVisible);
-	RightBox->SetHiddenInGame(!IsVisible);
-	FwdLeftBox->SetHiddenInGame(!IsVisible);
-	FwdRightBox->SetHiddenInGame(!IsVisible);
-	LeftBigBox->SetHiddenInGame(!IsVisible);
-	RightBigBox->SetHiddenInGame(!IsVisible);
+	/*if (FwdBox)
+	{
+		FwdBox->SetHiddenInGame(!IsVisible);
+	}
+
+	if (LeftBox)
+	{
+		LeftBox->SetHiddenInGame(!IsVisible);
+	}
+
+	if (RightBox)
+	{
+		RightBox->SetHiddenInGame(!IsVisible);
+	}
+
+	if (FwdLeftBox)
+	{
+		FwdLeftBox->SetHiddenInGame(!IsVisible);
+	}
+
+	if (FwdRightBox)
+	{
+		FwdRightBox->SetHiddenInGame(!IsVisible);
+	}
+
+	if (LeftBigBox)
+	{
+		LeftBigBox->SetHiddenInGame(!IsVisible);
+	}
+
+	if (RightBigBox)
+	{
+		RightBigBox->SetHiddenInGame(!IsVisible);
+	}*/
 
 	IsSelected = IsVisible;
+}
+
+void USC2AIComponent::SetCharacterCaptureRadius(float Radius)
+{
+	CharacterCapsuleRadius = Radius;
 }

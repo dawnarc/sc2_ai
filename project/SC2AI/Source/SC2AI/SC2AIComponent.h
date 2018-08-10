@@ -27,6 +27,41 @@ enum EOverlapBoxIndex
 	Max,
 };
 
+struct FakeOverlapBox
+{
+	FVector LocationOffset;
+	FVector Extent;
+
+	FVector WorldLocation;
+
+	int OverlapCount;
+
+	FakeOverlapBox()
+	{
+		LocationOffset = FVector::ZeroVector;
+		Extent = FVector::ZeroVector;
+		WorldLocation = FVector::ZeroVector;
+		OverlapCount = 0;
+	}
+
+	FakeOverlapBox(const FVector& Offset, const FVector& Size)
+	{
+		LocationOffset = Offset;
+		Extent = Size;
+		WorldLocation = FVector::ZeroVector;
+		OverlapCount = 0;
+	}
+
+	bool IsInside(const FVector& TargetLoc, int CapsuleRadius)
+	{
+		return FMath::Abs(TargetLoc.X - WorldLocation.X) <= Extent.X + CapsuleRadius && FMath::Abs(TargetLoc.Y - WorldLocation.Y) <= Extent.Y + CapsuleRadius && FMath::Abs(TargetLoc.Z - WorldLocation.Z) <= Extent.Z + CapsuleRadius;
+	}
+
+	void SetWorldLocation(const FVector& ParentWorldLocation, const FRotator& ParentWorldRotation)
+	{
+		WorldLocation = ParentWorldLocation + ParentWorldRotation.RotateVector(LocationOffset);
+	}
+};
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -50,6 +85,8 @@ public:
 
 	void SetCollisionVisible(bool IsVisible);
 
+	void SetCharacterCaptureRadius(float Radius);
+
 protected:
 
 	// Called every frame
@@ -57,6 +94,8 @@ protected:
 
 	// Called when the game starts
 	virtual void BeginPlay() override;
+
+	void UpdateBox(float DeltaTime);
 
 	void CalcMovement(float DeltaSeconds);
 
@@ -93,7 +132,7 @@ protected:
 	float RotateLerpTime90Degree;
 	float RotateLerpTime;
 
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	/*UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 	UBoxComponent* FwdBox;
 
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
@@ -112,7 +151,22 @@ protected:
 		UBoxComponent* LeftBigBox;
 
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
-		UBoxComponent* RightBigBox;
+		UBoxComponent* RightBigBox;*/
+
+	//*********** Overlap check simulate (Begin)**************
+	FakeOverlapBox FwdBoxEx = FakeOverlapBox(FVector(75.f, 0.f, 0.f), FVector(20.f, 20.f, 20.f));
+	FakeOverlapBox LeftBoxEx = FakeOverlapBox(FVector(0.f, -75.f, 0.f), FVector(20.f, 20.f, 20.f));
+	FakeOverlapBox RightBoxEx = FakeOverlapBox(FVector(0.f, 75.f, 0.f), FVector(20.f, 20.f, 20.f));
+	FakeOverlapBox FwdLeftBoxEx = FakeOverlapBox(FVector(75.f, -75.f, 0.f), FVector(20.f, 20.f, 20.f));
+	FakeOverlapBox FwdRightBoxEx = FakeOverlapBox(FVector(75.f, 75.f, 0.f), FVector(20.f, 20.f, 20.f));
+	FakeOverlapBox LeftBigBoxEx = FakeOverlapBox(FVector(60.f, -180.f, 0.f), FVector(100.f, 80.f, 20.f));
+	FakeOverlapBox RightBigBoxEx = FakeOverlapBox(FVector(60.f, 180.f, 0.f), FVector(100.f, 80.f, 20.f));
+
+	float CharacterCapsuleRadius;
+	//*********** Overlap check simulate (End)**************
+
+	float OverlapCheckTime = 0;
+	const float OverlapCheckInterval = 0.1f;
 
 	FVector DestDirection;
 
