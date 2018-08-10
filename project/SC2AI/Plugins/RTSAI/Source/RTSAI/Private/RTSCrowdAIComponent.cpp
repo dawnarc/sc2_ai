@@ -93,6 +93,8 @@ void URTSCrowdAIComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 		return;
 	}
 
+	FindNeighborAgents(DeltaTime);
+
 	UpdateBox(DeltaTime);
 
 	CalcMovement(DeltaTime);
@@ -137,7 +139,7 @@ void URTSCrowdAIComponent::UpdateBox(float DeltaTime)
 		LeftBigBoxEx.SetWorldLocation(CompLoc, CompRot);
 		RightBigBoxEx.SetWorldLocation(CompLoc, CompRot);
 
-		if (APawn* Parent = Cast<APawn>(GetAttachmentRootActor()))
+		if (APawn* Pawn = Cast<APawn>(GetAttachmentRootActor()))
 		{
 			FwdBoxEx.OverlapCount = 0.f;
 			LeftBoxEx.OverlapCount = 0.f;
@@ -153,43 +155,44 @@ void URTSCrowdAIComponent::UpdateBox(float DeltaTime)
 				int temp = 0;
 			}
 
-			for (TActorIterator<APawn> Iter(GetWorld()); Iter; ++Iter)
+			//for (TActorIterator<APawn> Iter(GetWorld()); Iter; ++Iter)
+			for(APawn* Agent : NeighborAgents)
 			{
-				if (*Iter != Parent)
+				if (Agent != Pawn)
 				{
-					FVector UnitLoc = Iter->GetActorLocation();
+					FVector AgentLoc = Agent->GetActorLocation();
 
-					if (FwdBoxEx.IsInside(UnitLoc, CharacterCapsuleRadius))
+					if (FwdBoxEx.IsInside(AgentLoc, CharacterCapsuleRadius))
 					{
 						FwdBoxEx.OverlapCount++;
 					}
 
-					if (LeftBoxEx.IsInside(UnitLoc, CharacterCapsuleRadius))
+					if (LeftBoxEx.IsInside(AgentLoc, CharacterCapsuleRadius))
 					{
 						LeftBoxEx.OverlapCount++;
 					}
 
-					if (RightBoxEx.IsInside(UnitLoc, CharacterCapsuleRadius))
+					if (RightBoxEx.IsInside(AgentLoc, CharacterCapsuleRadius))
 					{
 						RightBoxEx.OverlapCount++;
 					}
 
-					if (FwdLeftBoxEx.IsInside(UnitLoc, CharacterCapsuleRadius))
+					if (FwdLeftBoxEx.IsInside(AgentLoc, CharacterCapsuleRadius))
 					{
 						FwdLeftBoxEx.OverlapCount++;
 					}
 
-					if (FwdRightBoxEx.IsInside(UnitLoc, CharacterCapsuleRadius))
+					if (FwdRightBoxEx.IsInside(AgentLoc, CharacterCapsuleRadius))
 					{
 						FwdRightBoxEx.OverlapCount++;
 					}
 
-					if (LeftBigBoxEx.IsInside(UnitLoc, CharacterCapsuleRadius))
+					if (LeftBigBoxEx.IsInside(AgentLoc, CharacterCapsuleRadius))
 					{
 						LeftBigBoxEx.OverlapCount++;
 					}
 
-					if (RightBigBoxEx.IsInside(UnitLoc, CharacterCapsuleRadius))
+					if (RightBigBoxEx.IsInside(AgentLoc, CharacterCapsuleRadius))
 					{
 						RightBigBoxEx.OverlapCount++;
 					}
@@ -305,7 +308,7 @@ void URTSCrowdAIComponent::CalcMovement(float DeltaSeconds)
 					int temp = 0;
 				}
 
-				if (CountArray.Num() == DirectionArray.Num() && DirectionArray.Num() == EOverlapBoxIndex::Max)
+				if (CountArray.Num() == DirectionArray.Num() && DirectionArray.Num() == RTSAI::Max)
 				{
 					int32 LessestCount = 999999;
 					int Index = -1;
@@ -323,31 +326,31 @@ void URTSCrowdAIComponent::CalcMovement(float DeltaSeconds)
 					}
 
 					//find the direction that units count is least.
-					if (EOverlapBoxIndex::Left == Index)
+					if (RTSAI::Left == Index)
 					{
-						if (CountArray[EOverlapBoxIndex::Left] == CountArray[EOverlapBoxIndex::Right])
+						if (CountArray[RTSAI::Left] == CountArray[RTSAI::Right])
 						{
-							if (CountArray[EOverlapBoxIndex::FwdLeft] == CountArray[EOverlapBoxIndex::FwdRight])
+							if (CountArray[RTSAI::FwdLeft] == CountArray[RTSAI::FwdRight])
 							{
-								Index = FMath::RandBool() ? EOverlapBoxIndex::Left : EOverlapBoxIndex::Right;
+								Index = FMath::RandBool() ? RTSAI::Left : RTSAI::Right;
 							}
 							else
 							{
-								Index = CountArray[EOverlapBoxIndex::FwdLeft] > CountArray[EOverlapBoxIndex::FwdRight] ? EOverlapBoxIndex::Right : EOverlapBoxIndex::Left;
+								Index = CountArray[RTSAI::FwdLeft] > CountArray[RTSAI::FwdRight] ? RTSAI::Right : RTSAI::Left;
 							}
 						}
 					}
-					else if(EOverlapBoxIndex::FwdLeft == Index)
+					else if(RTSAI::FwdLeft == Index)
 					{
-						if (CountArray[EOverlapBoxIndex::FwdLeft] == CountArray[EOverlapBoxIndex::FwdRight])
+						if (CountArray[RTSAI::FwdLeft] == CountArray[RTSAI::FwdRight])
 						{
-							if (CountArray[EOverlapBoxIndex::Left] == CountArray[EOverlapBoxIndex::Right])
+							if (CountArray[RTSAI::Left] == CountArray[RTSAI::Right])
 							{
-								Index = FMath::RandBool() ? EOverlapBoxIndex::FwdLeft : EOverlapBoxIndex::FwdRight;
+								Index = FMath::RandBool() ? RTSAI::FwdLeft : RTSAI::FwdRight;
 							}
 							else
 							{
-								Index = CountArray[EOverlapBoxIndex::Left] > CountArray[EOverlapBoxIndex::Right] ? EOverlapBoxIndex::FwdRight : EOverlapBoxIndex::FwdLeft;
+								Index = CountArray[RTSAI::Left] > CountArray[RTSAI::Right] ? RTSAI::FwdRight : RTSAI::FwdLeft;
 							}
 						}
 					}
@@ -357,7 +360,7 @@ void URTSCrowdAIComponent::CalcMovement(float DeltaSeconds)
 					{
 						if (FMath::Abs(LeftCount - RightCount) <= 1 || FMath::Abs(FwdLeftCount - FwdRightCount) <= 1)
 						{
-							Index = LeftBigCount > RightBigCount ? EOverlapBoxIndex::Right : EOverlapBoxIndex::Left;
+							Index = LeftBigCount > RightBigCount ? RTSAI::Right : RTSAI::Left;
 						}
 					}
 
@@ -470,6 +473,43 @@ FVector URTSCrowdAIComponent::GetMoveDiretion(const FVector& InputVector)
 	}
 
 	return Ret.GetSafeNormal();
+}
+
+void URTSCrowdAIComponent::FindNeighborAgents(float DeltaTime)
+{
+	if (IsSelected)
+	{
+		int Temp = 0;
+	}
+
+	if (NeighborCheckTime < NeighborCheckInterval)
+	{
+		NeighborCheckTime += DeltaTime;
+	}
+	else
+	{
+		NeighborCheckTime = 0.f;
+
+		if (const APawn* Pawn = Cast<APawn>(GetAttachmentRootActor()))
+		{
+			FVector SelfLoc = Pawn->GetActorLocation();
+
+			NeighborAgents.Reset();
+
+			for (TActorIterator<APawn> Iter(GetWorld()); Iter; ++Iter)
+			{
+				if (Pawn != *Iter)
+				{
+					FVector AgentLoc = Iter->GetActorLocation();
+
+					if (FVector::Dist(SelfLoc, AgentLoc) < NeighborSearchRange)
+					{
+						NeighborAgents.Add(*Iter);
+					}
+				}
+			}
+		}
+	}
 }
 
 void URTSCrowdAIComponent::InitOverlapBox(ACharacter* Target)

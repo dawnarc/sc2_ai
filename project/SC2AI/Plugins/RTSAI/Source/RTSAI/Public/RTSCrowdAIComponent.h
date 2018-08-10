@@ -17,15 +17,18 @@ enum class EGroup : uint8
 	Enemy,
 };
 
-enum EOverlapBoxIndex
+namespace RTSAI
 {
-	Forward_,	//不加下划线会和引擎代码命名冲突
-	Left,
-	Right,
-	FwdLeft,
-	FwdRight,
-	Max,
-};
+	enum EOverlapBoxIndex
+	{
+		Forward,
+		Left,
+		Right,
+		FwdLeft,
+		FwdRight,
+		Max,
+	};
+}
 
 struct FakeOverlapBox
 {
@@ -112,6 +115,8 @@ private:
 	//@TODO force inline
 	FVector GetMoveDiretion(const FVector& InputVector);
 
+	void FindNeighborAgents(float DeltaTime);
+
 protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -182,8 +187,13 @@ protected:
 	float BlockCheckInterval;
 	FVector LastPosition;
 
+	float NeighborCheckTime = 0.f;
+	const float NeighborCheckInterval = 0.6f;
+	const float NeighborSearchRange = 400.f;
+	TArray<APawn*> NeighborAgents;
+
 private:
 
-	//是否鼠标选中(仅调试用)
+	//is character has been clicked(for debug only)
 	bool IsSelected;
 };
