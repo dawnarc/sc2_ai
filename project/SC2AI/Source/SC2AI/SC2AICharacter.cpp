@@ -93,6 +93,14 @@ void ASC2AICharacter::SetDestDirection(const FVector& Direction)
 	}
 }
 
+void ASC2AICharacter::SetRTSAIEnabled(bool bEnabled)
+{
+	if (URTSCrowdAIComponent* Comp = URTSAIUtil::GetRTSAIComponent(this))
+	{
+		Comp->SetEnabled(bEnabled);
+	}
+}
+
 void ASC2AICharacter::BeginDestroy()
 {
 	Super::BeginDestroy();

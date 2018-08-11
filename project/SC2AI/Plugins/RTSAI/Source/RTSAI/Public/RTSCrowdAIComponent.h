@@ -76,6 +76,8 @@ public:
 	// Sets default values for this component's properties
 	URTSCrowdAIComponent();
 
+	void SetEnabled(bool Enable) { IsEnable = Enable; }
+
 	void InitOverlapBox(ACharacter* Target);
 
 	void SetGroup(EGroup GroupType) { Group = GroupType; }
@@ -118,6 +120,8 @@ private:
 	void FindNeighborAgents(float DeltaTime);
 
 protected:
+
+	bool IsEnable = false;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		EGroup Group;

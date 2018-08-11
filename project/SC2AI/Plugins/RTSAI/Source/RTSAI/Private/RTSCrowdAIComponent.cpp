@@ -78,14 +78,15 @@ void URTSCrowdAIComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (IsSelected)
-	{
-		int temp = 0;
-	}
-
-	if (EGroup::Enemy == Group)
+	if (!IsEnable)
 	{
 		return;
+	}
+
+	if (IsSelected)
+	{
+		//for breakpoint (debug only)
+		int temp = 0;
 	}
 
 	if (FVector::ZeroVector == DestDirection)

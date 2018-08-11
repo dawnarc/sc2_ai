@@ -31,6 +31,8 @@ public:
 
 	void SetDestDirection(const FVector& Direction);
 
+	void SetRTSAIEnabled(bool bEnabled);
+
 protected:
 
 	void BeginDestroy();

@@ -72,6 +72,7 @@ void ASC2AIGameMode::SpawnCharacter()
 		Char->SpawnDefaultController();
 		Char->SetGroup(EGroup::Ally);
 		Char->SetDestDirection(DestDirection);
+		Char->SetRTSAIEnabled(true);
 
 		CharList.Add(Char);
 
