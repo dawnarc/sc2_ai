@@ -9,6 +9,7 @@
 
 #include "SC2AICharacter.h"
 #include "MyAIController.h"
+#include "MyPawn.h"
 
 ASC2AIGameMode::ASC2AIGameMode()
 {
@@ -23,7 +24,7 @@ ASC2AIGameMode::ASC2AIGameMode()
 	SpawnLocOffset = FVector(50.f, 0.f, 0.f);
 	LocBase = FVector(-70.f, -2000.f, 500.f);
 	DestLoc = FVector(70.f, 1540.f, 500.f);
-	SpawnInterval = 0.5f;
+	SpawnInterval = 0.8f;
 	SpawnCountPeerTime = 5;
 	SpawnTime = 0.f;
 	OffsetFlag = false;
@@ -42,49 +43,97 @@ void ASC2AIGameMode::Tick(float DeltaSecond)
 void ASC2AIGameMode::StartPlay()
 {
 	Super::StartPlay();
-
-	SpawnCharacter();
 }
 
 
 void ASC2AIGameMode::AllMove(const FVector& Location)
 {
 	int Count = 0;
-	for (ASC2AICharacter* Char : CharList)
+	/*for (ASC2AICharacter* Char : CharList)
 	{
 		if (Char->IsValidLowLevelFast())
 		{
 			if (AMyAIController* Controller = Cast<AMyAIController>(Char->GetController()))
 			{
 				EPathFollowingRequestResult::Type Ret = Controller->MoveToLocation(Location);
-				//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::FromInt((int)Ret));
 				Count++;
 			}
+		}
+	}*/
+}
+
+void ASC2AIGameMode::SetAllStopMove()
+{
+	for (APawn* Pawn : CharList)
+	{
+		if (ASC2AICharacter* Char = Cast<ASC2AICharacter>(Pawn))
+		{
+			Char->EnableMove(false);
 		}
 	}
 }
 
+void ASC2AIGameMode::SpawnAgentBegin()
+{
+	SpawnCharacter();
+}
+
+//bool ASC2AIGameMode::GetAllStopMove()
+//{
+//
+//}
+
 void ASC2AIGameMode::SpawnCharacter()
 {
-	FVector Loc = LocBase + FVector(FMath::RandRange(-RandDist, RandDist), FMath::RandRange(-RandDist, RandDist), 0.f);
-	if (ASC2AICharacter* Char = GetWorld()->SpawnActor<ASC2AICharacter>(CharacterClass, Loc, SpawnRotOffset))
+	if (GetWorld())
 	{
-		Char->SpawnDefaultController();
-		Char->SetGroup(EGroup::Ally);
-		Char->SetDestDirection(DestDirection);
-		Char->SetRTSAIEnabled(true);
+		SpawnTime += GetWorld()->GetDeltaSeconds();
 
-		CharList.Add(Char);
+		if (SpawnTime >= SpawnInterval)
+		{
+			SpawnTime = 0.f;
 
-		CurrSpawnedCount++;
-	}
-	else
-	{
-		//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, FString("QQQQQQQQ"));
-	}
+			for (int i = 0; i < SpawnCountPeerTime; i++)
+			{
+				if (CurrSpawnedCount >= AllSpawnedCount)
+				{
+					break;
+				}
 
-	if (CurrSpawnedCount < AllSpawnedCount)
-	{
-		GetWorldTimerManager().SetTimerForNextTick(TimerDel);
+				FVector Loc = LocBase + FVector(FMath::RandRange(-RandDist, RandDist), FMath::RandRange(-RandDist, RandDist), 0.f);
+				
+
+				//Loc.Z = 2000.f;
+
+				
+				if (APawn* Char = GetWorld()->SpawnActor<APawn>(CharacterClass, Loc, SpawnRotOffset))
+				{
+					if (ASC2AICharacter* SC2Char = Cast<ASC2AICharacter>(Char))
+					{
+						SC2Char->SetGroup(EGroup::Ally);
+						SC2Char->SpawnDefaultController();
+						SC2Char->InitRTSAIComponent();
+						SC2Char->SetRTSAIDestDirection(DestDirection);
+						SC2Char->SetRTSAIEnabled(true);
+
+						/*Char->EnableMove(true);
+						Char->MoveDirection = DestDirection;*/
+					}
+
+					CharList.Add(Char);
+
+					CurrSpawnedCount++;
+				}
+				else
+				{
+					GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Magenta, FString("QQQQQQQQQQQQQQQQQQQQQ"));
+				}
+			}
+		}
+
+		if (CurrSpawnedCount < AllSpawnedCount)
+		{
+			GetWorldTimerManager().SetTimerForNextTick(TimerDel);
+		}
 	}
 }

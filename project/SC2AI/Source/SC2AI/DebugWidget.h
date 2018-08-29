@@ -7,6 +7,7 @@
 #include "DebugWidget.generated.h"
 
 class UTextBlock;
+class UButton;
 
 /**
  * 
@@ -23,5 +24,18 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 		UTextBlock* TxtDebug;
+
+protected:
+
+	bool Initialize() override;
+
+	void NativeConstruct() override;
+
+	UFUNCTION()
+	void OnBtnClicked();
+
+private:
+
+	UButton* BtnTest = nullptr;
 	
 };

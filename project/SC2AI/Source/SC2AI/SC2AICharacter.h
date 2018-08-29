@@ -29,9 +29,13 @@ public:
 
 	void SetCollisionVisible(bool IsVisible);
 
-	void SetDestDirection(const FVector& Direction);
+	void InitRTSAIComponent();
 
-	void SetRTSAIEnabled(bool bEnabled);
+	void SetRTSAIEnabled(bool Enable);
+
+	void SetRTSAIDestDirection(const FVector& Direction);
+
+	void EnableMove(bool CanMove);
 
 protected:
 
@@ -55,5 +59,11 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 	URTSCrowdAIComponent* SC2AIComponent;
+
+	bool bCanMove = false;
+
+public:
+
+	FVector MoveDirection;
 };
 

@@ -79,6 +79,9 @@ void ASC2AIPlayerController::SetupInputComponent()
 
 	//Êó±êµã»÷
 	InputComponent->BindAction("MouseClick", IE_Pressed, this, &ASC2AIPlayerController::OnMouseClick);
+
+	InputComponent->BindAction("SpawnAgents", IE_Pressed, this, &ASC2AIPlayerController::SpawnAgentBegin);
+	InputComponent->BindAction("AllStopMove", IE_Pressed, this, &ASC2AIPlayerController::AllAgentsStopMove);
 }
 
 void ASC2AIPlayerController::BeginPlay()
@@ -195,5 +198,21 @@ void ASC2AIPlayerController::OnMouseClick()
 		}
 		
 
+	}
+}
+
+void ASC2AIPlayerController::AllAgentsStopMove()
+{
+	if (ASC2AIGameMode* GameMode = Cast<ASC2AIGameMode>(GetWorld()->GetAuthGameMode()))
+	{
+		GameMode->SetAllStopMove();
+	}
+}
+
+void ASC2AIPlayerController::SpawnAgentBegin()
+{
+	if (ASC2AIGameMode* GameMode = Cast<ASC2AIGameMode>(GetWorld()->GetAuthGameMode()))
+	{
+		GameMode->SpawnAgentBegin();
 	}
 }

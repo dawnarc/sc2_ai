@@ -46,6 +46,10 @@ protected:
 
 	void OnMouseClick();
 
+	void AllAgentsStopMove();
+
+	void SpawnAgentBegin();
+
 protected:
 
 	UPROPERTY(EditDefaultsOnly)

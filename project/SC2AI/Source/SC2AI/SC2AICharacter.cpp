@@ -41,7 +41,7 @@ ASC2AICharacter::ASC2AICharacter()
 	CameraBoom->RelativeRotation = FRotator(-60.f, 0.f, 0.f);
 	CameraBoom->bDoCollisionTest = false; // Don't want to pull camera in when it collides with level
 
-	// Create a camera...
+	//// Create a camera...
 	TopDownCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("TopDownCamera"));
 	TopDownCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	TopDownCameraComponent->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
@@ -59,6 +59,11 @@ ASC2AICharacter::ASC2AICharacter()
 void ASC2AICharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	if (bCanMove)
+	{
+		AddMovementInput(MoveDirection);
+	}
 }
 
 void ASC2AICharacter::SetGroup(EGroup GroupType)
@@ -85,7 +90,28 @@ void ASC2AICharacter::SetCollisionVisible(bool IsVisible)
 	}
 }
 
-void ASC2AICharacter::SetDestDirection(const FVector& Direction)
+void ASC2AICharacter::InitRTSAIComponent()
+{
+	if (URTSCrowdAIComponent* Comp = NewObject<URTSCrowdAIComponent>(this))
+	{
+		Comp->RegisterComponent();
+		Comp->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		if (GetCapsuleComponent())
+		{
+			Comp->SetCharacterCaptureRadius(GetCapsuleComponent()->GetScaledCapsuleRadius());
+		}
+	}
+}
+
+void ASC2AICharacter::SetRTSAIEnabled(bool Enable)
+{
+	if (URTSCrowdAIComponent* Comp = URTSAIUtil::GetRTSAIComponent(this))
+	{
+		Comp->SetEnabled(Enable);
+	}
+}
+
+void ASC2AICharacter::SetRTSAIDestDirection(const FVector& Direction)
 {
 	if (URTSCrowdAIComponent* Comp = URTSAIUtil::GetRTSAIComponent(this))
 	{
@@ -93,12 +119,10 @@ void ASC2AICharacter::SetDestDirection(const FVector& Direction)
 	}
 }
 
-void ASC2AICharacter::SetRTSAIEnabled(bool bEnabled)
+void ASC2AICharacter::EnableMove(bool CanMove)
 {
-	if (URTSCrowdAIComponent* Comp = URTSAIUtil::GetRTSAIComponent(this))
-	{
-		Comp->SetEnabled(bEnabled);
-	}
+	bCanMove = CanMove;
+	SetRTSAIEnabled(false);
 }
 
 void ASC2AICharacter::BeginDestroy()

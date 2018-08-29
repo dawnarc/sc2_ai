@@ -20,6 +20,12 @@ public:
 
 	void AllMove(const FVector& Location);
 
+	void SetAllStopMove();
+
+	void SpawnAgentBegin();
+
+	//bool GetAllStopMove();
+
 protected:
 
 	virtual void Tick(float DeltaSecond) override;
@@ -34,12 +40,12 @@ protected:
 protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = AI)
-		TArray<ASC2AICharacter*> CharList;
+		TArray<APawn*> CharList;
 
 private:
 
 	UPROPERTY(EditDefaultsOnly, Category = AI)
-	TSubclassOf<ASC2AICharacter> CharacterClass;
+	TSubclassOf<APawn> CharacterClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = AI)
 		FVector DestDirection;
@@ -59,10 +65,10 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = AI)
 		float SpawnInterval;
 
+	float SpawnTime;
+
 	UPROPERTY(EditDefaultsOnly, Category = AI)
 		int SpawnCountPeerTime;
-
-	float SpawnTime;
 
 	bool OffsetFlag;
 
@@ -75,6 +81,8 @@ private:
 		int AllSpawnedCount;
 
 	FTimerDelegate TimerDel;
+
+	bool bSpawnBegin = false;
 };
 
 
