@@ -20,11 +20,11 @@ public:
 
 	void AllMove(const FVector& Location);
 
-	void SetAllStopMove();
-
 	void SpawnAgentBegin();
 
-	//bool GetAllStopMove();
+	void SetAllStopMove();
+
+	void ControllerUnpossess();
 
 protected:
 

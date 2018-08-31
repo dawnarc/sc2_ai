@@ -8,6 +8,7 @@
 
 class ACharacter;
 class UBoxComponent;
+class AController;
 
 
 UENUM(BlueprintType)
@@ -117,7 +118,12 @@ private:
 	//@TODO force inline
 	FVector GetMoveDiretion(const FVector& InputVector);
 
+	//neighbor searching main function.
 	void FindNeighborAgents(float DeltaTime);
+
+	FORCEINLINE void EnableMovement();
+
+	FORCEINLINE void DisableMovement();
 
 protected:
 
@@ -177,7 +183,7 @@ protected:
 	//*********** Overlap check simulate (End)**************
 
 	float OverlapCheckTime = 0;
-	const float OverlapCheckInterval = 0.1f;
+	const float OverlapCheckInterval = 0.25f;
 
 	FVector DestDirection;
 
@@ -190,11 +196,16 @@ protected:
 	float BlockCheckTime;
 	float BlockCheckInterval;
 	FVector LastPosition;
+	//@TODO temp test
+	bool BlockDebugPrintFlag = false;
 
 	float NeighborCheckTime = 0.f;
-	const float NeighborCheckInterval = 0.6f;
-	const float NeighborSearchRange = 400.f;
+	const float NeighborCheckInterval = 1.f;
+	const float NeighborSearchRange = 450.f;
 	TArray<APawn*> NeighborAgents;
+
+	UPROPERTY()
+	AController* SelfController;
 
 private:
 

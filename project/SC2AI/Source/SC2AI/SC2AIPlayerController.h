@@ -46,9 +46,11 @@ protected:
 
 	void OnMouseClick();
 
+	void SpawnAgentBegin();
+
 	void AllAgentsStopMove();
 
-	void SpawnAgentBegin();
+	void OnControllerUnpossess();
 
 protected:
 

@@ -4,6 +4,9 @@
 #include "Components/BoxComponent.h"
 #include "Math/RotationMatrix.h"
 #include "EngineUtils.h"
+#include "TimerManager.h"
+
+#include "RTSAIContainer.h"
 
 // Sets default values for this component's properties
 URTSCrowdAIComponent::URTSCrowdAIComponent()
@@ -258,114 +261,142 @@ void URTSCrowdAIComponent::CalcMovement(float DeltaSeconds)
 				int temp = 0;
 			}
 
+			if (BlockTime > 0.f)
+			{
+				if (!BlockDebugPrintFlag)
+				{
+					BlockDebugPrintFlag = true;
+					//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Magenta, FString::SanitizeFloat(BlockTime));
+				}
+			}
+
 			//if (LeftCount > 0 && RightCount > 0 && FwdLeftCount > 0 && FwdRightCount > 0)
 			if((FwdCount < 3 && LeftCount > 0 && RightCount > 0) && 0.f == BlockTime || (LeftBigCount < 7 && RightBigCount < 7))
 			{
-				CurrDirection = GetMoveDiretion(DireFwd);
+				if (0 == FwdCount && 0 == FwdLeftCount && 0 == FwdRightCount && LeftBigCount >= 2 && RightBigCount >= 2)
+				{
+					DisableMovement();
+				}
+				else
+				{
+					EnableMovement();
+					CurrDirection = GetMoveDiretion(DireFwd);
+				}
 			}
 			else
 			{
-				CountArray.Reset();
-
-				CountArray.Add(FwdCount);
-				CountArray.Add(LeftCount);
-				CountArray.Add(RightCount);
-				CountArray.Add(FwdLeftCount);
-				CountArray.Add(FwdRightCount);
-
-				/*if (FwdBox)
+				//if neighbor count of two side are large, then Unposses Controller, in order to improve performance.
+				if ((LeftBigCount >= 8 && RightBigCount >= 8 && FMath::Abs(RightBigCount - LeftBigCount) <= 1))
 				{
+					DisableMovement();
+				}
+				else
+				{
+					EnableMovement();
+
+					CountArray.Reset();
+
+					CountArray.Add(FwdCount);
+					CountArray.Add(LeftCount);
+					CountArray.Add(RightCount);
+					CountArray.Add(FwdLeftCount);
+					CountArray.Add(FwdRightCount);
+
+					/*if (FwdBox)
+					{
 					FwdBox->GetOverlappingActors(OverlapActors, APawn::StaticClass());
 					CountArray.Add(OverlapActors.Num());
-				}
+					}
 
-				if (LeftBox)
-				{
+					if (LeftBox)
+					{
 					LeftBox->GetOverlappingActors(OverlapActors, APawn::StaticClass());
 					CountArray.Add(OverlapActors.Num());
-				}
+					}
 
-				if (RightBox)
-				{
+					if (RightBox)
+					{
 					RightBox->GetOverlappingActors(OverlapActors, APawn::StaticClass());
 					CountArray.Add(OverlapActors.Num());
-				}
+					}
 
-				if (FwdLeftBox)
-				{
+					if (FwdLeftBox)
+					{
 					FwdLeftBox->GetOverlappingActors(OverlapActors, APawn::StaticClass());
 					CountArray.Add(OverlapActors.Num());
-				}
+					}
 
-				if (FwdRightBox)
-				{
+					if (FwdRightBox)
+					{
 					FwdRightBox->GetOverlappingActors(OverlapActors, APawn::StaticClass());
 					CountArray.Add(OverlapActors.Num());
-				}*/
+					}*/
 
-				if (IsSelected)
-				{
-					//for breakpoint
-					int temp = 0;
-				}
-
-				if (CountArray.Num() == DirectionArray.Num() && DirectionArray.Num() == RTSAI::Max)
-				{
-					int32 LessestCount = 999999;
-					int Index = -1;
-					for (int i = 0; i < CountArray.Num(); i++)
+					if (IsSelected)
 					{
-						if (CountArray[i] >= 0)
-						{
-							if (CountArray[i] < LessestCount)
-							{
-								Index = i;
-								LessestCount = CountArray[i];
-								//GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Red, CurrDirection.ToString());
-							}
-						}
+						//for breakpoint
+						int temp = 0;
 					}
 
-					//find the direction that units count is least.
-					if (RTSAI::Left == Index)
+					if (CountArray.Num() == DirectionArray.Num() && DirectionArray.Num() == RTSAI::Max)
 					{
-						if (CountArray[RTSAI::Left] == CountArray[RTSAI::Right])
+						//find the direction that units count is least.
+						int32 LessestCount = 999999;
+						int Index = -1;
+						for (int i = 0; i < CountArray.Num(); i++)
 						{
-							if (CountArray[RTSAI::FwdLeft] == CountArray[RTSAI::FwdRight])
+							if (CountArray[i] >= 0)
 							{
-								Index = FMath::RandBool() ? RTSAI::Left : RTSAI::Right;
-							}
-							else
-							{
-								Index = CountArray[RTSAI::FwdLeft] > CountArray[RTSAI::FwdRight] ? RTSAI::Right : RTSAI::Left;
+								if (CountArray[i] < LessestCount)
+								{
+									Index = i;
+									LessestCount = CountArray[i];
+									//GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Red, CurrDirection.ToString());
+								}
 							}
 						}
-					}
-					else if(RTSAI::FwdLeft == Index)
-					{
-						if (CountArray[RTSAI::FwdLeft] == CountArray[RTSAI::FwdRight])
+
+						//random direction if neighbor count of left and right are equivalent.
+						if (RTSAI::Left == Index)
 						{
 							if (CountArray[RTSAI::Left] == CountArray[RTSAI::Right])
 							{
-								Index = FMath::RandBool() ? RTSAI::FwdLeft : RTSAI::FwdRight;
-							}
-							else
-							{
-								Index = CountArray[RTSAI::Left] > CountArray[RTSAI::Right] ? RTSAI::FwdRight : RTSAI::FwdLeft;
+								if (CountArray[RTSAI::FwdLeft] == CountArray[RTSAI::FwdRight])
+								{
+									Index = FMath::RandBool() ? RTSAI::Left : RTSAI::Right;
+								}
+								else
+								{
+									Index = CountArray[RTSAI::FwdLeft] > CountArray[RTSAI::FwdRight] ? RTSAI::Right : RTSAI::Left;
+								}
 							}
 						}
-					}
-
-					//if the difference of overlap count in two side BigBox is greater than 3, thus we choose the direction of BigBox that overlap count is least.
-					if (FMath::Abs(LeftBigCount - RightBigCount) >= 4)
-					{
-						if (FMath::Abs(LeftCount - RightCount) <= 1 || FMath::Abs(FwdLeftCount - FwdRightCount) <= 1)
+						else if (RTSAI::FwdLeft == Index)
 						{
-							Index = LeftBigCount > RightBigCount ? RTSAI::Right : RTSAI::Left;
+							if (CountArray[RTSAI::FwdLeft] == CountArray[RTSAI::FwdRight])
+							{
+								if (CountArray[RTSAI::Left] == CountArray[RTSAI::Right])
+								{
+									Index = FMath::RandBool() ? RTSAI::FwdLeft : RTSAI::FwdRight;
+								}
+								else
+								{
+									Index = CountArray[RTSAI::Left] > CountArray[RTSAI::Right] ? RTSAI::FwdRight : RTSAI::FwdLeft;
+								}
+							}
 						}
-					}
 
-					CurrDirection = GetMoveDiretion(DirectionArray[Index]);
+						//if the difference of overlap count in two side BigBox is greater than 3, thus we choose the direction of BigBox that overlap count is least.
+						if (FMath::Abs(LeftBigCount - RightBigCount) >= 4)
+						{
+							if (FMath::Abs(LeftCount - RightCount) <= 1 || FMath::Abs(FwdLeftCount - FwdRightCount) <= 1)
+							{
+								Index = LeftBigCount > RightBigCount ? RTSAI::Right : RTSAI::Left;
+							}
+						}
+
+						CurrDirection = GetMoveDiretion(DirectionArray[Index]);
+					}
 				}
 			}
 		}
@@ -457,6 +488,8 @@ void URTSCrowdAIComponent::RefreshBlockInfo(float DeltaSeconds)
 		else
 		{
 			BlockTime = 0.f;
+
+			BlockDebugPrintFlag = false;
 		}
 		LastPosition = GetComponentLocation();
 	}
@@ -509,6 +542,33 @@ void URTSCrowdAIComponent::FindNeighborAgents(float DeltaTime)
 					}
 				}
 			}
+		}
+	}
+}
+
+void URTSCrowdAIComponent::EnableMovement()
+{
+	if (APawn* Pawn = Cast<APawn>(GetAttachmentRootActor()))
+	{
+		if (!Pawn->GetController() && SelfController)
+		{
+			Pawn->PossessedBy(SelfController);
+		}
+	}
+}
+
+void URTSCrowdAIComponent::DisableMovement()
+{
+	if (APawn* Pawn = Cast<APawn>(GetAttachmentRootActor()))
+	{
+		if (!SelfController)
+		{
+			SelfController = Pawn->GetController();
+		}
+
+		if (Pawn->GetController())
+		{
+			Pawn->UnPossessed();
 		}
 	}
 }

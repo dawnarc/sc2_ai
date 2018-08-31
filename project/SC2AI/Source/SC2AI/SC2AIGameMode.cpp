@@ -6,10 +6,14 @@
 #include "UObject/ConstructorHelpers.h"
 #include "Classes/GameFramework/SpectatorPawn.h"
 #include "NavigationSystem.h"
+#include "EngineUtils.h"
+#include "Camera/CameraComponent.h"
+#include "RTSAIContainer.h"
 
 #include "SC2AICharacter.h"
 #include "MyAIController.h"
 #include "MyPawn.h"
+
 
 ASC2AIGameMode::ASC2AIGameMode()
 {
@@ -45,7 +49,6 @@ void ASC2AIGameMode::StartPlay()
 	Super::StartPlay();
 }
 
-
 void ASC2AIGameMode::AllMove(const FVector& Location)
 {
 	int Count = 0;
@@ -62,26 +65,10 @@ void ASC2AIGameMode::AllMove(const FVector& Location)
 	}*/
 }
 
-void ASC2AIGameMode::SetAllStopMove()
-{
-	for (APawn* Pawn : CharList)
-	{
-		if (ASC2AICharacter* Char = Cast<ASC2AICharacter>(Pawn))
-		{
-			Char->EnableMove(false);
-		}
-	}
-}
-
 void ASC2AIGameMode::SpawnAgentBegin()
 {
 	SpawnCharacter();
 }
-
-//bool ASC2AIGameMode::GetAllStopMove()
-//{
-//
-//}
 
 void ASC2AIGameMode::SpawnCharacter()
 {
@@ -101,11 +88,7 @@ void ASC2AIGameMode::SpawnCharacter()
 				}
 
 				FVector Loc = LocBase + FVector(FMath::RandRange(-RandDist, RandDist), FMath::RandRange(-RandDist, RandDist), 0.f);
-				
 
-				//Loc.Z = 2000.f;
-
-				
 				if (APawn* Char = GetWorld()->SpawnActor<APawn>(CharacterClass, Loc, SpawnRotOffset))
 				{
 					if (ASC2AICharacter* SC2Char = Cast<ASC2AICharacter>(Char))
@@ -120,13 +103,15 @@ void ASC2AIGameMode::SpawnCharacter()
 						Char->MoveDirection = DestDirection;*/
 					}
 
+					URTSAIContainer::AddAgent(Char);
+
 					CharList.Add(Char);
 
 					CurrSpawnedCount++;
 				}
 				else
 				{
-					GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Magenta, FString("QQQQQQQQQQQQQQQQQQQQQ"));
+					//GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Magenta, FString("QQQQQQQQQQQQQQQQQQQQQ"));
 				}
 			}
 		}
@@ -134,6 +119,29 @@ void ASC2AIGameMode::SpawnCharacter()
 		if (CurrSpawnedCount < AllSpawnedCount)
 		{
 			GetWorldTimerManager().SetTimerForNextTick(TimerDel);
+		}
+	}
+}
+
+void ASC2AIGameMode::SetAllStopMove()
+{
+	for (APawn* Pawn : CharList)
+	{
+		if (ASC2AICharacter* Char = Cast<ASC2AICharacter>(Pawn))
+		{
+			Char->EnableMove(false);
+		}
+	}
+}
+
+void ASC2AIGameMode::ControllerUnpossess()
+{
+	for (APawn* Pawn : CharList)
+	{
+		if (ASC2AICharacter* Char = Cast<ASC2AICharacter>(Pawn))
+		{
+			Char->UnPossessed();
+			Char->SetRTSAIEnabled(false);
 		}
 	}
 }

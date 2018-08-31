@@ -82,6 +82,7 @@ void ASC2AIPlayerController::SetupInputComponent()
 
 	InputComponent->BindAction("SpawnAgents", IE_Pressed, this, &ASC2AIPlayerController::SpawnAgentBegin);
 	InputComponent->BindAction("AllStopMove", IE_Pressed, this, &ASC2AIPlayerController::AllAgentsStopMove);
+	InputComponent->BindAction("Unpossess", IE_Pressed, this, &ASC2AIPlayerController::OnControllerUnpossess);
 }
 
 void ASC2AIPlayerController::BeginPlay()
@@ -201,6 +202,14 @@ void ASC2AIPlayerController::OnMouseClick()
 	}
 }
 
+void ASC2AIPlayerController::SpawnAgentBegin()
+{
+	if (ASC2AIGameMode* GameMode = Cast<ASC2AIGameMode>(GetWorld()->GetAuthGameMode()))
+	{
+		GameMode->SpawnAgentBegin();
+	}
+}
+
 void ASC2AIPlayerController::AllAgentsStopMove()
 {
 	if (ASC2AIGameMode* GameMode = Cast<ASC2AIGameMode>(GetWorld()->GetAuthGameMode()))
@@ -209,10 +218,10 @@ void ASC2AIPlayerController::AllAgentsStopMove()
 	}
 }
 
-void ASC2AIPlayerController::SpawnAgentBegin()
+void ASC2AIPlayerController::OnControllerUnpossess()
 {
 	if (ASC2AIGameMode* GameMode = Cast<ASC2AIGameMode>(GetWorld()->GetAuthGameMode()))
 	{
-		GameMode->SpawnAgentBegin();
+		GameMode->ControllerUnpossess();
 	}
 }
