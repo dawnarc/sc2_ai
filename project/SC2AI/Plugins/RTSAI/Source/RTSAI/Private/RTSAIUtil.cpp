@@ -1,16 +1,16 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "RTSAIUtil.h"
-#include "RTSCrowdAIComponent.h"
+#include "RTSAICrowdComponent.h"
 
-URTSCrowdAIComponent* URTSAIUtil::GetRTSAIComponent(AActor* Target)
+URTSAICrowdComponent* URTSAIUtil::GetRTSAIComponent(AActor* Target)
 {
-	URTSCrowdAIComponent* Ret = nullptr;
-	TArray<UActorComponent*> Components = Target->GetComponentsByClass(URTSCrowdAIComponent::StaticClass());
+	URTSAICrowdComponent* Ret = nullptr;
+	TArray<UActorComponent*> Components = Target->GetComponentsByClass(URTSAICrowdComponent::StaticClass());
 
 	if (Components.Num() > 0)
 	{
-		Ret = Cast<URTSCrowdAIComponent>(Components[0]);
+		Ret = Cast<URTSAICrowdComponent>(Components[0]);
 	}
 	return Ret;
 }

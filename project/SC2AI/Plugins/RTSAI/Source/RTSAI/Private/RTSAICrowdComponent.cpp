@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "RTSCrowdAIComponent.h"
+#include "RTSAICrowdComponent.h"
 #include "Components/BoxComponent.h"
 #include "Math/RotationMatrix.h"
 #include "EngineUtils.h"
@@ -9,7 +9,7 @@
 #include "RTSAIContainer.h"
 
 // Sets default values for this component's properties
-URTSCrowdAIComponent::URTSCrowdAIComponent()
+URTSAICrowdComponent::URTSAICrowdComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -77,7 +77,7 @@ URTSCrowdAIComponent::URTSCrowdAIComponent()
 }
 
 // Called every frame
-void URTSCrowdAIComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void URTSAICrowdComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
@@ -111,7 +111,7 @@ void URTSCrowdAIComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 }
 
 // Called when the game starts
-void URTSCrowdAIComponent::BeginPlay()
+void URTSAICrowdComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -122,7 +122,7 @@ void URTSCrowdAIComponent::BeginPlay()
 	DirectionArray.Add(DireFwdRight);
 }
 
-void URTSCrowdAIComponent::UpdateBox(float DeltaTime)
+void URTSAICrowdComponent::UpdateBox(float DeltaTime)
 {
 	if (OverlapCheckTime < OverlapCheckInterval)
 	{
@@ -206,7 +206,7 @@ void URTSCrowdAIComponent::UpdateBox(float DeltaTime)
 	}
 }
 
-void URTSCrowdAIComponent::CalcMovement(float DeltaSeconds)
+void URTSAICrowdComponent::CalcMovement(float DeltaSeconds)
 {
 	if (CalcDelayTime > 0.f)
 	{
@@ -396,7 +396,7 @@ void URTSCrowdAIComponent::CalcMovement(float DeltaSeconds)
 	}
 }
 
-void URTSCrowdAIComponent::RefreshLerpData()
+void URTSAICrowdComponent::RefreshLerpData()
 {
 	if (!LastDirection.Equals(CurrDirection))
 	{
@@ -406,7 +406,7 @@ void URTSCrowdAIComponent::RefreshLerpData()
 	}
 }
 
-void URTSCrowdAIComponent::LerpRotateAndMove(float DeltaSeconds)
+void URTSAICrowdComponent::LerpRotateAndMove(float DeltaSeconds)
 {
 	if (APawn* Pawn = Cast<APawn>(GetAttachmentRootActor()))
 	{
@@ -452,12 +452,12 @@ void URTSCrowdAIComponent::LerpRotateAndMove(float DeltaSeconds)
 	}
 }
 
-void URTSCrowdAIComponent::RotateCollisionForward(float DeltaSeconds)
+void URTSAICrowdComponent::RotateCollisionForward(float DeltaSeconds)
 {
 	SetWorldRotation(DestDirection.Rotation());
 }
 
-void URTSCrowdAIComponent::RefreshBlockInfo(float DeltaSeconds)
+void URTSAICrowdComponent::RefreshBlockInfo(float DeltaSeconds)
 {
 	if (IsSelected)
 	{
@@ -484,7 +484,7 @@ void URTSCrowdAIComponent::RefreshBlockInfo(float DeltaSeconds)
 	}
 }
 
-FVector URTSCrowdAIComponent::GetMoveDiretion(const FVector& InputVector)
+FVector URTSAICrowdComponent::GetMoveDiretion(const FVector& InputVector)
 {
 	FVector Ret = FVector::ZeroVector;
 	if (APawn* Character = Cast<APawn>(GetAttachmentRootActor()))
@@ -498,7 +498,7 @@ FVector URTSCrowdAIComponent::GetMoveDiretion(const FVector& InputVector)
 	return Ret.GetSafeNormal();
 }
 
-void URTSCrowdAIComponent::FindNeighborAgents(float DeltaTime)
+void URTSAICrowdComponent::FindNeighborAgents(float DeltaTime)
 {
 	if (IsSelected)
 	{
@@ -535,7 +535,7 @@ void URTSCrowdAIComponent::FindNeighborAgents(float DeltaTime)
 	}
 }
 
-void URTSCrowdAIComponent::EnableMovement()
+void URTSAICrowdComponent::EnableMovement()
 {
 	if (APawn* Pawn = Cast<APawn>(GetAttachmentRootActor()))
 	{
@@ -546,7 +546,7 @@ void URTSCrowdAIComponent::EnableMovement()
 	}
 }
 
-void URTSCrowdAIComponent::DisableMovement()
+void URTSAICrowdComponent::DisableMovement()
 {
 	if (APawn* Pawn = Cast<APawn>(GetAttachmentRootActor()))
 	{
@@ -562,18 +562,18 @@ void URTSCrowdAIComponent::DisableMovement()
 	}
 }
 
-void URTSCrowdAIComponent::InitOverlapBox(ACharacter* Target)
+void URTSAICrowdComponent::InitOverlapBox(ACharacter* Target)
 {
 	
 }
 
-void URTSCrowdAIComponent::SetDestDirection(const FVector& Direction)
+void URTSAICrowdComponent::SetDestDirection(const FVector& Direction)
 {
 	DestDirection = Direction;
 	CurrDirection = GetMoveDiretion(DireFwd);
 }
 
-void URTSCrowdAIComponent::GetOverlapCount(int& FwdCount, int& LeftCount, int& RightCount, int& FwdLeftCount, int& FwdRightCount, int& BigLeftCount, int& BigRightCount)
+void URTSAICrowdComponent::GetOverlapCount(int& FwdCount, int& LeftCount, int& RightCount, int& FwdLeftCount, int& FwdRightCount, int& BigLeftCount, int& BigRightCount)
 {
 	/*TArray<AActor*> OverlapActors;
 
@@ -607,7 +607,7 @@ void URTSCrowdAIComponent::GetOverlapCount(int& FwdCount, int& LeftCount, int& R
 	BigRightCount = RightBigBoxEx.OverlapCount;
 }
 
-void URTSCrowdAIComponent::SetCollisionVisible(bool IsVisible)
+void URTSAICrowdComponent::SetCollisionVisible(bool IsVisible)
 {
 	/*if (FwdBox)
 	{
@@ -647,7 +647,7 @@ void URTSCrowdAIComponent::SetCollisionVisible(bool IsVisible)
 	IsSelected = IsVisible;
 }
 
-void URTSCrowdAIComponent::SetCharacterCaptureRadius(float Radius)
+void URTSAICrowdComponent::SetCharacterCaptureRadius(float Radius)
 {
 	CharacterCapsuleRadius = Radius;
 }

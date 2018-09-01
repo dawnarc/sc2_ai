@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "RTSCrowdAIComponent.h"
+#include "RTSAICrowdComponent.h"
 #include "SC2AICharacter.generated.h"
 
 UCLASS(Blueprintable)
@@ -43,10 +43,10 @@ private:
 		TMap<int32, FVector> DirectionMap;
 
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
-		TSubclassOf<URTSCrowdAIComponent> SC2AIComponentClass;
+		TSubclassOf<URTSAICrowdComponent> SC2AIComponentClass;
 
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
-	URTSCrowdAIComponent* SC2AIComponent;
+	URTSAICrowdComponent* SC2AIComponent;
 
 	bool bCanMove = false;
 

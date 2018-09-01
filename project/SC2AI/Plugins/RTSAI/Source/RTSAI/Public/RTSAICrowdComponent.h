@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h"
-#include "RTSCrowdAIComponent.generated.h"
+#include "RTSAICrowdComponent.generated.h"
 
 class ACharacter;
 class UBoxComponent;
@@ -69,13 +69,13 @@ struct FakeOverlapBox
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class RTSAI_API URTSCrowdAIComponent : public USceneComponent
+class RTSAI_API URTSAICrowdComponent : public USceneComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	URTSCrowdAIComponent();
+	URTSAICrowdComponent();
 
 	void SetEnabled(bool Enable) { IsEnable = Enable; }
 

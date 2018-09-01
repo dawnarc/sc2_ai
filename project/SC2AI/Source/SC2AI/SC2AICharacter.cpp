@@ -56,7 +56,7 @@ void ASC2AICharacter::Tick(float DeltaSeconds)
 
 void ASC2AICharacter::SetGroup(EGroup GroupType)
 {
-	if (URTSCrowdAIComponent* Comp = URTSAIUtil::GetRTSAIComponent(this))
+	if (URTSAICrowdComponent* Comp = URTSAIUtil::GetRTSAIComponent(this))
 	{
 		Comp->SetGroup(GroupType);
 	}
@@ -64,7 +64,7 @@ void ASC2AICharacter::SetGroup(EGroup GroupType)
 
 void ASC2AICharacter::GetOverlapCount(int& FwdCount, int& LeftCount, int& RightCount, int& FwdLeftCount, int& FwdRightCount, int& BigLeftCount, int& BigRightCount)
 {
-	if (URTSCrowdAIComponent* Comp = URTSAIUtil::GetRTSAIComponent(this))
+	if (URTSAICrowdComponent* Comp = URTSAIUtil::GetRTSAIComponent(this))
 	{
 		Comp->GetOverlapCount(FwdCount, LeftCount, RightCount, FwdLeftCount, FwdRightCount, BigLeftCount, BigRightCount);
 	}
@@ -72,7 +72,7 @@ void ASC2AICharacter::GetOverlapCount(int& FwdCount, int& LeftCount, int& RightC
 
 void ASC2AICharacter::SetCollisionVisible(bool IsVisible)
 {
-	if (URTSCrowdAIComponent* Comp = URTSAIUtil::GetRTSAIComponent(this))
+	if (URTSAICrowdComponent* Comp = URTSAIUtil::GetRTSAIComponent(this))
 	{
 		Comp->SetCollisionVisible(IsVisible);
 	}
@@ -80,7 +80,7 @@ void ASC2AICharacter::SetCollisionVisible(bool IsVisible)
 
 void ASC2AICharacter::InitRTSAIComponent()
 {
-	if (URTSCrowdAIComponent* Comp = NewObject<URTSCrowdAIComponent>(this))
+	if (URTSAICrowdComponent* Comp = NewObject<URTSAICrowdComponent>(this))
 	{
 		Comp->RegisterComponent();
 		Comp->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
@@ -93,7 +93,7 @@ void ASC2AICharacter::InitRTSAIComponent()
 
 void ASC2AICharacter::SetRTSAIEnabled(bool Enable)
 {
-	if (URTSCrowdAIComponent* Comp = URTSAIUtil::GetRTSAIComponent(this))
+	if (URTSAICrowdComponent* Comp = URTSAIUtil::GetRTSAIComponent(this))
 	{
 		Comp->SetEnabled(Enable);
 	}
@@ -101,7 +101,7 @@ void ASC2AICharacter::SetRTSAIEnabled(bool Enable)
 
 void ASC2AICharacter::SetRTSAIDestDirection(const FVector& Direction)
 {
-	if (URTSCrowdAIComponent* Comp = URTSAIUtil::GetRTSAIComponent(this))
+	if (URTSAICrowdComponent* Comp = URTSAIUtil::GetRTSAIComponent(this))
 	{
 		Comp->SetDestDirection(Direction);
 	}

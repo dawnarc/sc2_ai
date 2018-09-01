@@ -6,7 +6,7 @@
 #include "UObject/NoExportTypes.h"
 #include "RTSAIUtil.generated.h"
 
-class URTSCrowdAIComponent;
+class URTSAICrowdComponent;
 
 /**
  * 
@@ -18,6 +18,6 @@ class RTSAI_API URTSAIUtil : public UObject
 	
 public:
 	
-	static URTSCrowdAIComponent* GetRTSAIComponent(AActor* Target);
+	static URTSAICrowdComponent* GetRTSAIComponent(AActor* Target);
 	
 };
