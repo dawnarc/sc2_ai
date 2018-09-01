@@ -196,8 +196,6 @@ protected:
 	float BlockCheckTime;
 	float BlockCheckInterval;
 	FVector LastPosition;
-	//@TODO temp test
-	bool BlockDebugPrintFlag = false;
 
 	float NeighborCheckTime = 0.f;
 	const float NeighborCheckInterval = 1.f;

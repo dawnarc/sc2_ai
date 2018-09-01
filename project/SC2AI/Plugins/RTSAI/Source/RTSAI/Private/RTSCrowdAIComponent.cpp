@@ -261,15 +261,6 @@ void URTSCrowdAIComponent::CalcMovement(float DeltaSeconds)
 				int temp = 0;
 			}
 
-			if (BlockTime > 0.f)
-			{
-				if (!BlockDebugPrintFlag)
-				{
-					BlockDebugPrintFlag = true;
-					//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Magenta, FString::SanitizeFloat(BlockTime));
-				}
-			}
-
 			//if (LeftCount > 0 && RightCount > 0 && FwdLeftCount > 0 && FwdRightCount > 0)
 			if((FwdCount < 3 && LeftCount > 0 && RightCount > 0) && 0.f == BlockTime || (LeftBigCount < 7 && RightBigCount < 7))
 			{
@@ -488,8 +479,6 @@ void URTSCrowdAIComponent::RefreshBlockInfo(float DeltaSeconds)
 		else
 		{
 			BlockTime = 0.f;
-
-			BlockDebugPrintFlag = false;
 		}
 		LastPosition = GetComponentLocation();
 	}
