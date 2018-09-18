@@ -8,6 +8,7 @@
 #include "Classes/GameFramework/SpectatorPawn.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "Components/TextBlock.h"
+#include "RTSAIUtil.h"
 
 #include "SC2AIGameMode.h"
 #include "DebugWidget.h"
@@ -51,8 +52,14 @@ void ASC2AIPlayerController::PlayerTick(float DeltaTime)
 			int BigRightCount = -1;
 
 			SelectedCharacter->GetOverlapCount(FwdCount, LeftCount, RightCount, FwdLeftCount, FwdRightCount, BigLeftCount, BigRightCount);
-			FString Text = FString::Printf(TEXT("F:%d\t\tL:%d\t\tR:%d\t\tFL:%d\t\tFR:%d\t\tBL:%d\t\tBR:%d"), FwdCount, LeftCount, RightCount, FwdLeftCount, FwdRightCount, BigLeftCount, BigRightCount);
-			DebugWidget->TxtDebug->SetText(FText::FromString(Text));
+			//FString Text = FString::Printf(TEXT("F:%d\t\tL:%d\t\tR:%d\t\tFL:%d\t\tFR:%d\t\tBL:%d\t\tBR:%d"), FwdCount, LeftCount, RightCount, FwdLeftCount, FwdRightCount, BigLeftCount, BigRightCount);
+
+			if (URTSAICrowdComponent* Comp = URTSAIUtil::GetRTSAIComponent(SelectedCharacter))
+			{
+				FString Text = FString::Printf(TEXT("%d\t\t%d"), Comp->DebugDist, Comp->bIsBlocked ? 1 : 0);
+
+				DebugWidget->TxtDebug->SetText(FText::FromString(Text));
+			}
 
 			if (USkeletalMeshComponent* MeshComp = SelectedCharacter->GetMesh())
 			{
@@ -182,7 +189,15 @@ void ASC2AIPlayerController::OnMouseClick()
 		{
 			if (SelectedCharacter)
 			{
-				if (USkeletalMeshComponent* MeshComp = SelectedCharacter->GetMesh())
+				/*if (USkeletalMeshComponent* MeshComp = SelectedCharacter->GetMesh())
+				{
+					if (DefaultMaterial)
+					{
+						MeshComp->SetMaterial(0, DefaultMaterial);
+					}
+				}*/
+
+				if (UStaticMeshComponent* MeshComp = SelectedCharacter->GetCubeMesh())
 				{
 					if (DefaultMaterial)
 					{
@@ -194,6 +209,14 @@ void ASC2AIPlayerController::OnMouseClick()
 			}
 
 			NewSelected->SetCollisionVisible(true);
+
+			if (UStaticMeshComponent* MeshComp = NewSelected->GetCubeMesh())
+			{
+				if (DebugHighlightMaterial)
+				{
+					MeshComp->SetMaterial(0, DebugHighlightMaterial);
+				}
+			}
 
 			SelectedCharacter = NewSelected;
 		}

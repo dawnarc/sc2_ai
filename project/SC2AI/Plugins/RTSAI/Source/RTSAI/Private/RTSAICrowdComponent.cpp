@@ -8,17 +8,13 @@
 
 #include "RTSAIContainer.h"
 
+
 // Sets default values for this component's properties
 URTSAICrowdComponent::URTSAICrowdComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	CalcDelayTime = 1.f;
-	RotateLerpTime90Degree = 0.3f;
-	RotateLerpDuration = 0.3f;
-	RotateLerpTime = 0.f;
 
 	/*FwdBox = CreateDefaultSubobject<UBoxComponent>(TEXT("FwdBox"));
 	FwdBox->SetBoxExtent(FVector(20.f, 20.f, 20.f));
@@ -61,19 +57,6 @@ URTSAICrowdComponent::URTSAICrowdComponent()
 	RightBigBox->SetupAttachment(this);
 	RightBigBox->AddLocalOffset(FVector(60.f, 180.f, 0.f));
 	RightBigBox->SetCollisionProfileName(TEXT("RoundBoxPreset"));*/
-
-	CharacterCapsuleRadius = 42.f;
-
-	DestDirection = FVector::ZeroVector;
-
-	IsCollisionHide = true;
-
-	BlockTime = 0.f;
-	BlockCheckTime = 0.f;
-	BlockCheckInterval = 0.3f;
-	LastPosition = FVector::ZeroVector;
-
-	IsSelected = false;
 }
 
 // Called every frame
@@ -107,7 +90,7 @@ void URTSAICrowdComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 	RotateCollisionForward(DeltaTime);
 
-	RefreshBlockInfo(DeltaTime);
+	RefreshBlockState(DeltaTime);
 }
 
 // Called when the game starts
@@ -262,132 +245,114 @@ void URTSAICrowdComponent::CalcMovement(float DeltaSeconds)
 			}
 
 			//if (LeftCount > 0 && RightCount > 0 && FwdLeftCount > 0 && FwdRightCount > 0)
-			if((FwdCount < 3 && LeftCount > 0 && RightCount > 0) && 0.f == BlockTime || (LeftBigCount < 7 && RightBigCount < 7))
+			if((FwdCount < 3 && LeftCount > 0 && RightCount > 0) && !bIsBlocked || (LeftBigCount < 7 && RightBigCount < 7))
 			{
-				if (0 == FwdCount && 0 == FwdLeftCount && 0 == FwdRightCount && LeftBigCount >= 2 && RightBigCount >= 2)
-				{
-					DisableMovement();
-				}
-				else
-				{
-					EnableMovement();
-					CurrDirection = GetMoveDiretion(DireFwd);
-				}
+				CurrDirection = GetMoveDiretion(DireFwd);
 			}
 			else
 			{
-				//if neighbor count of two side are large, then Unposses Controller, in order to improve performance.
-				if ((LeftBigCount >= 8 && RightBigCount >= 8 && FMath::Abs(RightBigCount - LeftBigCount) <= 1))
+				CountArray.Reset();
+
+				CountArray.Add(FwdCount);
+				CountArray.Add(LeftCount);
+				CountArray.Add(RightCount);
+				CountArray.Add(FwdLeftCount);
+				CountArray.Add(FwdRightCount);
+
+				/*if (FwdBox)
 				{
-					DisableMovement();
+				FwdBox->GetOverlappingActors(OverlapActors, APawn::StaticClass());
+				CountArray.Add(OverlapActors.Num());
 				}
-				else
+
+				if (LeftBox)
 				{
-					EnableMovement();
+				LeftBox->GetOverlappingActors(OverlapActors, APawn::StaticClass());
+				CountArray.Add(OverlapActors.Num());
+				}
 
-					CountArray.Reset();
+				if (RightBox)
+				{
+				RightBox->GetOverlappingActors(OverlapActors, APawn::StaticClass());
+				CountArray.Add(OverlapActors.Num());
+				}
 
-					CountArray.Add(FwdCount);
-					CountArray.Add(LeftCount);
-					CountArray.Add(RightCount);
-					CountArray.Add(FwdLeftCount);
-					CountArray.Add(FwdRightCount);
+				if (FwdLeftBox)
+				{
+				FwdLeftBox->GetOverlappingActors(OverlapActors, APawn::StaticClass());
+				CountArray.Add(OverlapActors.Num());
+				}
 
-					/*if (FwdBox)
+				if (FwdRightBox)
+				{
+				FwdRightBox->GetOverlappingActors(OverlapActors, APawn::StaticClass());
+				CountArray.Add(OverlapActors.Num());
+				}*/
+
+				if (IsSelected)
+				{
+					//for breakpoint
+					int temp = 0;
+				}
+
+				if (CountArray.Num() == DirectionArray.Num() && DirectionArray.Num() == RTSAI::Max)
+				{
+					//find the direction that units count is least.
+					int32 LessestCount = 999999;
+					int Index = -1;
+					for (int i = 0; i < CountArray.Num(); i++)
 					{
-					FwdBox->GetOverlappingActors(OverlapActors, APawn::StaticClass());
-					CountArray.Add(OverlapActors.Num());
-					}
-
-					if (LeftBox)
-					{
-					LeftBox->GetOverlappingActors(OverlapActors, APawn::StaticClass());
-					CountArray.Add(OverlapActors.Num());
-					}
-
-					if (RightBox)
-					{
-					RightBox->GetOverlappingActors(OverlapActors, APawn::StaticClass());
-					CountArray.Add(OverlapActors.Num());
-					}
-
-					if (FwdLeftBox)
-					{
-					FwdLeftBox->GetOverlappingActors(OverlapActors, APawn::StaticClass());
-					CountArray.Add(OverlapActors.Num());
-					}
-
-					if (FwdRightBox)
-					{
-					FwdRightBox->GetOverlappingActors(OverlapActors, APawn::StaticClass());
-					CountArray.Add(OverlapActors.Num());
-					}*/
-
-					if (IsSelected)
-					{
-						//for breakpoint
-						int temp = 0;
-					}
-
-					if (CountArray.Num() == DirectionArray.Num() && DirectionArray.Num() == RTSAI::Max)
-					{
-						//find the direction that units count is least.
-						int32 LessestCount = 999999;
-						int Index = -1;
-						for (int i = 0; i < CountArray.Num(); i++)
+						if (CountArray[i] >= 0)
 						{
-							if (CountArray[i] >= 0)
+							if (CountArray[i] < LessestCount)
 							{
-								if (CountArray[i] < LessestCount)
-								{
-									Index = i;
-									LessestCount = CountArray[i];
-									//GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Red, CurrDirection.ToString());
-								}
+								Index = i;
+								LessestCount = CountArray[i];
+								//GEngine->AddOnScreenDebugMessage(-1, 0.1f, FColor::Red, CurrDirection.ToString());
 							}
 						}
+					}
 
-						//random direction if neighbor count of left and right are equivalent.
-						if (RTSAI::Left == Index)
-						{
-							if (CountArray[RTSAI::Left] == CountArray[RTSAI::Right])
-							{
-								if (CountArray[RTSAI::FwdLeft] == CountArray[RTSAI::FwdRight])
-								{
-									Index = FMath::RandBool() ? RTSAI::Left : RTSAI::Right;
-								}
-								else
-								{
-									Index = CountArray[RTSAI::FwdLeft] > CountArray[RTSAI::FwdRight] ? RTSAI::Right : RTSAI::Left;
-								}
-							}
-						}
-						else if (RTSAI::FwdLeft == Index)
+					//random direction if neighbor count of left and right are equivalent.
+					if (RTSAI::Left == Index)
+					{
+						if (CountArray[RTSAI::Left] == CountArray[RTSAI::Right])
 						{
 							if (CountArray[RTSAI::FwdLeft] == CountArray[RTSAI::FwdRight])
 							{
-								if (CountArray[RTSAI::Left] == CountArray[RTSAI::Right])
-								{
-									Index = FMath::RandBool() ? RTSAI::FwdLeft : RTSAI::FwdRight;
-								}
-								else
-								{
-									Index = CountArray[RTSAI::Left] > CountArray[RTSAI::Right] ? RTSAI::FwdRight : RTSAI::FwdLeft;
-								}
+								Index = FMath::RandBool() ? RTSAI::Left : RTSAI::Right;
 							}
-						}
-
-						//if the difference of overlap count in two side BigBox is greater than 3, thus we choose the direction of BigBox that overlap count is least.
-						if (FMath::Abs(LeftBigCount - RightBigCount) >= 4)
-						{
-							if (FMath::Abs(LeftCount - RightCount) <= 1 || FMath::Abs(FwdLeftCount - FwdRightCount) <= 1)
+							else
 							{
-								Index = LeftBigCount > RightBigCount ? RTSAI::Right : RTSAI::Left;
+								Index = CountArray[RTSAI::FwdLeft] > CountArray[RTSAI::FwdRight] ? RTSAI::Right : RTSAI::Left;
 							}
 						}
-
-						CurrDirection = GetMoveDiretion(DirectionArray[Index]);
 					}
+					else if (RTSAI::FwdLeft == Index)
+					{
+						if (CountArray[RTSAI::FwdLeft] == CountArray[RTSAI::FwdRight])
+						{
+							if (CountArray[RTSAI::Left] == CountArray[RTSAI::Right])
+							{
+								Index = FMath::RandBool() ? RTSAI::FwdLeft : RTSAI::FwdRight;
+							}
+							else
+							{
+								Index = CountArray[RTSAI::Left] > CountArray[RTSAI::Right] ? RTSAI::FwdRight : RTSAI::FwdLeft;
+							}
+						}
+					}
+
+					//if the difference of overlap count in two side BigBox is greater than 3, thus we choose the direction of BigBox that overlap count is least.
+					if (FMath::Abs(LeftBigCount - RightBigCount) >= 4)
+					{
+						if (FMath::Abs(LeftCount - RightCount) <= 1 || FMath::Abs(FwdLeftCount - FwdRightCount) <= 1)
+						{
+							Index = LeftBigCount > RightBigCount ? RTSAI::Right : RTSAI::Left;
+						}
+					}
+
+					CurrDirection = GetMoveDiretion(DirectionArray[Index]);
 				}
 			}
 		}
@@ -408,6 +373,11 @@ void URTSAICrowdComponent::RefreshLerpData()
 
 void URTSAICrowdComponent::LerpRotateAndMove(float DeltaSeconds)
 {
+	if (IsSelected)
+	{
+		int temp = 0;
+	}
+
 	if (APawn* Pawn = Cast<APawn>(GetAttachmentRootActor()))
 	{
 		if (RotateLerpTime < RotateLerpDuration)
@@ -457,31 +427,77 @@ void URTSAICrowdComponent::RotateCollisionForward(float DeltaSeconds)
 	SetWorldRotation(DestDirection.Rotation());
 }
 
-void URTSAICrowdComponent::RefreshBlockInfo(float DeltaSeconds)
+void URTSAICrowdComponent::RefreshBlockState(float DeltaSeconds)
 {
 	if (IsSelected)
 	{
 		int temp = 0;
 	}
 
-	if (BlockCheckTime < BlockCheckInterval)
+	static const float MIN_MOVE_DIST = 2.5f;
+	if (bIsBlocked)
 	{
-		BlockCheckTime += DeltaSeconds;
-	}
-	else
-	{
-		BlockCheckTime = 0.f;
-
-		if (FVector::Dist(GetComponentLocation(), LastPosition) < 30.f)
+		if (BlockCheckDuration <= BlockCheckInterval)
 		{
-			BlockTime += DeltaSeconds;
+			BlockCheckDuration += DeltaSeconds;
 		}
 		else
 		{
-			BlockTime = 0.f;
+			BlockCheckDuration = 0.f;
+			bIsBlocked = false;
 		}
-		LastPosition = GetComponentLocation();
 	}
+	else
+	{
+		if (bBlockChecked)
+		{
+			if (UnblockCheckDuration <= UnblockCheckInterval)
+			{
+				UnblockCheckDuration += DeltaSeconds;
+			}
+			else
+			{
+				UnblockCheckDuration = 0.f;
+				bBlockChecked = false;
+			}
+		}
+		else
+		{
+			StopCheckCount++;
+
+			if (StopCheckCount > 5)
+			{
+				bBlockChecked = true;
+				StopCount = 0;
+				StopCheckCount = 0;
+			}
+			
+			float Dist = FVector::Dist(GetComponentLocation(), LastPosition);
+			DebugDist = Dist;
+
+			if (Dist < MIN_MOVE_DIST)
+			{
+				StopCount++;
+			}
+			else
+			{
+				StopCount = 0.f;
+			}
+
+			if (StopCount > STOP_FRAMES_COUNT_THRESHOLD)
+			{
+				bIsBlocked = true;
+				DisableMovement();
+			}
+			else
+			{
+				bIsBlocked = false;
+				EnableMovement();
+			}
+		}
+	}
+
+	LastPosition = GetComponentLocation();
 }
 
 FVector URTSAICrowdComponent::GetMoveDiretion(const FVector& InputVector)

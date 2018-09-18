@@ -32,6 +32,8 @@ public:
 
 	void EnableMove(bool CanMove);
 
+	UStaticMeshComponent* GetCubeMesh() { return CubeMeshComp; }
+
 protected:
 
 	void BeginDestroy();
@@ -49,6 +51,9 @@ private:
 	URTSAICrowdComponent* SC2AIComponent;
 
 	bool bCanMove = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* CubeMeshComp = nullptr;
 
 public:
 

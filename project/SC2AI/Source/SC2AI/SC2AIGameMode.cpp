@@ -98,9 +98,10 @@ void ASC2AIGameMode::SpawnCharacter()
 						SC2Char->InitRTSAIComponent();
 						SC2Char->SetRTSAIDestDirection(DestDirection);
 						SC2Char->SetRTSAIEnabled(true);
+						//SC2Char->SetActorEnableCollision(false);
 
-						/*Char->EnableMove(true);
-						Char->MoveDirection = DestDirection;*/
+						/*SC2Char->EnableMove(true);
+						SC2Char->MoveDirection = DestDirection;*/
 					}
 
 					URTSAIContainer::AddAgent(Char);

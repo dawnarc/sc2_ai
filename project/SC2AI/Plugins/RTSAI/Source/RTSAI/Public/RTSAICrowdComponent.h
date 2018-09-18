@@ -111,7 +111,8 @@ protected:
 
 	void RotateCollisionForward(float DeltaSeconds);
 
-	void RefreshBlockInfo(float DeltaSeconds);
+	//refresh block state: if actor was blocked for a few time, then it would be stop moving, then wait a few time, check block state again.
+	void RefreshBlockState(float DeltaSeconds);
 
 private:
 
@@ -121,9 +122,13 @@ private:
 	//neighbor searching main function.
 	void FindNeighborAgents(float DeltaTime);
 
-	FORCEINLINE void EnableMovement();
+	/*FORCEINLINE*/ void EnableMovement();
 
-	FORCEINLINE void DisableMovement();
+	/*FORCEINLINE*/ void DisableMovement();
+
+public:
+
+	float DebugDist = 0.f;
 
 protected:
 
@@ -132,7 +137,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		EGroup Group;
 
-	float CalcDelayTime;
+	float CalcDelayTime = 1.f;
 
 	const FVector DireFwd = FVector(1.f, 0.f, 0.f);
 	const FVector DireLeft = FVector(0.f, -1.f, 0.f);
@@ -143,9 +148,9 @@ protected:
 	FVector CurrDirection;
 	FVector LastDirection;
 
-	float RotateLerpDuration;
-	float RotateLerpTime90Degree;
-	float RotateLerpTime;
+	float RotateLerpTime90Degree = 0.3f;
+	float RotateLerpDuration = 0.3f;
+	float RotateLerpTime = 0.f;
 
 	/*UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 	UBoxComponent* FwdBox;
@@ -178,24 +183,47 @@ protected:
 	FakeOverlapBox RightBigBoxEx = FakeOverlapBox(FVector(60.f, 180.f, 0.f), FVector(100.f, 80.f, 20.f));
 
 	UPROPERTY(EditDefaultsOnly, Category = AI)
-	float CharacterCapsuleRadius;
+	float CharacterCapsuleRadius = 42.f;
 
 	//*********** Overlap check simulate (End)**************
 
 	float OverlapCheckTime = 0;
 	const float OverlapCheckInterval = 0.25f;
 
-	FVector DestDirection;
-
-	bool IsCollisionHide;
+	FVector DestDirection = FVector::ZeroVector;
 
 	TArray<int> CountArray;
 	TArray<FVector> DirectionArray;
 
-	float BlockTime;
-	float BlockCheckTime;
-	float BlockCheckInterval;
-	FVector LastPosition;
+	//**************** movement block check begin *****************
+
+	//blocking check interval time.
+	float BlockCheckInterval = 0.3f;
+	//blocking check duration time.
+	float BlockCheckDuration = 0.f;
+	//agent's block duration time from blocking beginning.
+	float BlockTime = 0.f;
+	//duration that don't check when agent is blocking.
+	float UnblockCheckInterval = 0.5f;
+	//duration that don't check when agent is blocking.
+	float UnblockCheckDuration = 0.f;
+	//the sign means that if checked block state.
+	bool bBlockChecked = false;
+	//count frames when movement is stop.
+	int StopCount = 0;
+	//count frames when checking movement whether is stop.
+	int StopCheckCount = 0;
+	//threshold of frame count when movement stopped.
+	static const int STOP_FRAMES_COUNT_THRESHOLD = 5;
+
+public:
+
+	//block state flag.
+	bool bIsBlocked = false;
+	//agent's position in last tick.
+	FVector LastPosition = FVector::ZeroVector;
+
+	//**************** movement block check end *****************
 
 	float NeighborCheckTime = 0.f;
 	const float NeighborCheckInterval = 1.f;
@@ -205,8 +233,10 @@ protected:
 	UPROPERTY()
 	AController* SelfController;
 
+	//
+
 private:
 
 	//is character has been clicked(for debug only)
-	bool IsSelected;
+	bool IsSelected = false;
 };

@@ -42,6 +42,9 @@ ASC2AICharacter::ASC2AICharacter()
 	SC2AIComponent->SetupAttachment(RootComponent);
 	SC2AIComponent->SetGroup(EGroup::Enemy);
 	SC2AIComponent->SetCharacterCaptureRadius(CaptureRadius);*/
+
+	CubeMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CubeMesh"));
+	CubeMeshComp->SetupAttachment(RootComponent);
 }
 
 void ASC2AICharacter::Tick(float DeltaSeconds)
