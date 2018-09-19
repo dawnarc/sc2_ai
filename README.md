@@ -1,2 +1,2 @@
 # sc2_ai
-StarCraft2 movement AI algorithms achieved with UnrealEngine4
+"StarCraft2-Like" movement AI algorithms achieved with UnrealEngine4
