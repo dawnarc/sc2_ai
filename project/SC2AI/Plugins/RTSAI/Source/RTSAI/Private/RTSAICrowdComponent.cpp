@@ -145,7 +145,7 @@ void URTSAICrowdComponent::UpdateBox(float DeltaTime)
 			//for (TActorIterator<APawn> Iter(GetWorld()); Iter; ++Iter)
 			for(APawn* Agent : NeighborAgents)
 			{
-				if (Agent != Pawn)
+				if (Agent != Pawn && Agent->IsValidLowLevelFast())
 				{
 					FVector AgentLoc = Agent->GetActorLocation();
 
