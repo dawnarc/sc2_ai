@@ -31,6 +31,15 @@ namespace RTSAI
 	};
 }
 
+UENUM(BlueprintType)
+enum class ERTSAIState : uint8
+{
+	//前进
+	RTSAIS_GoForward,
+	//转向
+	RTSAIS_Turning,
+};
+
 struct FakeOverlapBox
 {
 	FVector LocationOffset;
@@ -87,11 +96,19 @@ public:
 
 	void SetDestDirection(const FVector& Direction);
 
+	void SetTurnDirection(const FVector& Direction);
+
 	void GetOverlapCount(int& FwdCount, int& LeftCount, int& RightCount, int& FwdLeftCount, int& FwdRightCount, int& BigLeftCount, int& BigRightCount);
 
 	void SetCollisionVisible(bool IsVisible);
 
 	void SetCharacterCaptureRadius(float Radius);
+
+	ERTSAIState GetState() { return State; }
+
+	void GetState(ERTSAIState RTSAIState) { State = RTSAIState; }
+
+	FVector GetDestDirectionCache() { return DestDirectionCache; }
 
 protected:
 
@@ -134,6 +151,10 @@ protected:
 
 	bool IsEnable = false;
 
+	ERTSAIState State = ERTSAIState::RTSAIS_GoForward;
+
+	//ERTSAIBlockTurn BlockTurn;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		EGroup Group;
 
@@ -145,8 +166,17 @@ protected:
 	const FVector DireFwdLeft = FVector(1.f, -1.f, 0.f);
 	const FVector DireFwdRight = FVector(1.f, 1.f, 0.f);
 
+	//current moving direction 
 	FVector CurrDirection;
+
+	//last moving direction
 	FVector LastDirection;
+
+	//the direction to destination 
+	FVector DestDirection = FVector::ZeroVector;
+
+	//cache of the direction to final destination, used for block turning.
+	FVector DestDirectionCache = FVector::ZeroVector;
 
 	float RotateLerpTime90Degree = 0.3f;
 	float RotateLerpDuration = 0.3f;
@@ -189,8 +219,6 @@ protected:
 
 	float OverlapCheckTime = 0;
 	const float OverlapCheckInterval = 0.25f;
-
-	FVector DestDirection = FVector::ZeroVector;
 
 	TArray<int> CountArray;
 	TArray<FVector> DirectionArray;

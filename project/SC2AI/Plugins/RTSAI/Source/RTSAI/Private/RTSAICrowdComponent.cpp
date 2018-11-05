@@ -585,8 +585,19 @@ void URTSAICrowdComponent::InitOverlapBox(ACharacter* Target)
 
 void URTSAICrowdComponent::SetDestDirection(const FVector& Direction)
 {
+	DestDirectionCache = Direction;
 	DestDirection = Direction;
 	CurrDirection = GetMoveDiretion(DireFwd);
+
+	RefreshLerpData();
+}
+
+void URTSAICrowdComponent::SetTurnDirection(const FVector& Direction)
+{
+	DestDirection = Direction;
+	CurrDirection = GetMoveDiretion(DireFwd);
+
+	RefreshLerpData();
 }
 
 void URTSAICrowdComponent::GetOverlapCount(int& FwdCount, int& LeftCount, int& RightCount, int& FwdLeftCount, int& FwdRightCount, int& BigLeftCount, int& BigRightCount)
